@@ -907,11 +907,13 @@ export default function Page() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <img 
-                  src="/images/logo.png" 
-                  alt="YXE Pristine Property Services" 
-                  className="h-14 w-auto brightness-0 invert"
-                />
+                <div className="bg-white rounded-lg p-2">
+                  <img 
+                    src="/images/logo.png" 
+                    alt="YXE Pristine Property Services" 
+                    className="h-12 w-auto"
+                  />
+                </div>
               </div>
               <p className="text-gray-400 text-sm mb-4">
                 Professional, eco-friendly cleaning solutions for residential and commercial clients in Saskatoon and surrounding areas.
