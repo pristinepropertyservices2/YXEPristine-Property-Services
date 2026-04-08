@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { hash } from 'crypto';
-
-// Simple password hashing function
-function hashPassword(password: string): string {
-  return hash('sha256', password);
-}
+import { hashPassword, validatePassword } from '@/lib/password';
+import { generateVerificationToken } from '@/lib/tokens';
+import { sendVerificationEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,6 +13,24 @@ export async function POST(request: NextRequest) {
     if (!name || !email || !password) {
       return NextResponse.json(
         { error: 'Name, email, and password are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
+        { status: 400 }
+      );
+    }
+
+    // Validate password strength
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      return NextResponse.json(
+        { error: passwordValidation.message },
         { status: 400 }
       );
     }
@@ -32,36 +47,53 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create user
-    const hashedPassword = hashPassword(password);
+    // Hash password
+    const hashedPassword = await hashPassword(password);
+
+    // Generate verification token
+    const { token, expires } = generateVerificationToken();
+
+    // Create user and verification token in transaction
     const user = await db.user.create({
       data: {
-        name,
         email: email.toLowerCase(),
+        name,
         phone: phone || null,
         password: hashedPassword,
         role: 'CUSTOMER',
+        emailVerified: null,
       },
     });
 
-    // In a real application, you would send a verification email here
-    // and use proper authentication like NextAuth.js
+    await db.verificationToken.create({
+      data: {
+        userId: user.id,
+        token,
+        identifier: 'email_verification',
+        expires,
+      },
+    });
 
-    return NextResponse.json({ 
-      success: true, 
+    // Send verification email
+    const emailResult = await sendVerificationEmail(email, name, token);
+
+    if (!emailResult.success) {
+      console.warn('Failed to send verification email:', emailResult.message);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Account created successfully. Please check your email to verify your account.',
       user: {
         id: user.id,
-        name: user.name,
         email: user.email,
-        phone: user.phone,
-        role: user.role,
+        name: user.name,
       },
-      message: 'Account created successfully. Please check your email to verify your account.' 
     });
   } catch (error) {
-    console.error('Error creating user:', error);
+    console.error('Signup error:', error);
     return NextResponse.json(
-      { error: 'Failed to create account' },
+      { error: 'Failed to create account. Please try again.' },
       { status: 500 }
     );
   }
