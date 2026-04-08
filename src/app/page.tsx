@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { PaymentModal } from '@/components/payment-modal';
 import { 
   Phone, Mail, MapPin, Clock, Star, Shield, Leaf, Sparkles, 
   ChevronRight, Menu, X, CalendarIcon, Check, User, LogIn,
@@ -161,8 +162,10 @@ export default function Page() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
   const [selectedService, setSelectedService] = useState<typeof services[0] | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<typeof plans[0] | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState('09:00');
   const [bookingStep, setBookingStep] = useState(1);
@@ -335,6 +338,12 @@ export default function Page() {
       setActiveSection(sectionId);
     }
     setMobileMenuOpen(false);
+  };
+
+  // Handle plan selection
+  const handleSelectPlan = (plan: typeof plans[0]) => {
+    setSelectedPlan(plan);
+    setIsPaymentModalOpen(true);
   };
 
   return (
@@ -770,9 +779,9 @@ export default function Page() {
                         plan.popular ? "bg-purple-700 hover:bg-purple-800" : ""
                       )}
                       variant={plan.popular ? "default" : "outline"}
-                      onClick={() => scrollToSection('services')}
+                      onClick={() => handleSelectPlan(plan)}
                     >
-                      Get Started
+                      {plan.type === 'ONE_TIME' ? 'Get Started' : 'Subscribe Now'}
                     </Button>
                   </CardFooter>
                 </Card>
@@ -1248,6 +1257,19 @@ export default function Page() {
           </Tabs>
         </DialogContent>
       </Dialog>
+
+      {/* Payment Modal */}
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        plan={selectedPlan}
+        onSuccess={() => {
+          toast({
+            title: 'Subscription Active!',
+            description: 'You can now enjoy your plan benefits.',
+          });
+        }}
+      />
     </div>
   );
 }
