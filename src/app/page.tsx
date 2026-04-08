@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +22,13 @@ import {
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 // Services data
 const services = [
@@ -172,6 +179,18 @@ export default function Page() {
   const [activeSection, setActiveSection] = useState('home');
   const [isScrolled, setIsScrolled] = useState(false);
   
+  // GSAP Refs
+  const heroRef = useRef<HTMLDivElement>(null);
+  const heroContentRef = useRef<HTMLDivElement>(null);
+  const heroImageRef = useRef<HTMLDivElement>(null);
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const servicesRef = useRef<HTMLDivElement>(null);
+  const servicesCardsRef = useRef<HTMLDivElement>(null);
+  const aboutRef = useRef<HTMLDivElement>(null);
+  const testimonialsRef = useRef<HTMLDivElement>(null);
+  const pricingRef = useRef<HTMLDivElement>(null);
+  const contactRef = useRef<HTMLDivElement>(null);
+  
   // Form states
   const [bookingForm, setBookingForm] = useState({
     address: '',
@@ -202,6 +221,146 @@ export default function Page() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // GSAP Animations
+  useEffect(() => {
+    // Hero animations
+    if (heroContentRef.current && heroImageRef.current) {
+      const heroTl = gsap.timeline();
+      
+      heroTl.from(heroContentRef.current.children, {
+        y: 50,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.15,
+        ease: 'power3.out',
+      });
+      
+      heroTl.from(heroImageRef.current, {
+        x: 100,
+        opacity: 0,
+        duration: 1,
+        ease: 'power3.out',
+      }, '-=0.5');
+    }
+
+    // Features strip animation
+    if (featuresRef.current) {
+      gsap.from(featuresRef.current.children, {
+        scrollTrigger: {
+          trigger: featuresRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none reverse',
+        },
+        y: 30,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'power2.out',
+      });
+    }
+
+    // Services section animation
+    if (servicesRef.current && servicesCardsRef.current) {
+      gsap.from(servicesRef.current.children, {
+        scrollTrigger: {
+          trigger: servicesRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none reverse',
+        },
+        y: 40,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'power2.out',
+      });
+
+      gsap.from(servicesCardsRef.current.children, {
+        scrollTrigger: {
+          trigger: servicesCardsRef.current,
+          start: 'top 85%',
+          toggleActions: 'play none none reverse',
+        },
+        y: 60,
+        opacity: 0,
+        scale: 0.95,
+        duration: 0.7,
+        stagger: 0.1,
+        ease: 'power2.out',
+      });
+    }
+
+    // About section animation
+    if (aboutRef.current) {
+      gsap.from(aboutRef.current.children, {
+        scrollTrigger: {
+          trigger: aboutRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none reverse',
+        },
+        x: -50,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.2,
+        ease: 'power2.out',
+      });
+    }
+
+    // Testimonials animation
+    if (testimonialsRef.current) {
+      gsap.from(testimonialsRef.current.children, {
+        scrollTrigger: {
+          trigger: testimonialsRef.current,
+          start: 'top 85%',
+          toggleActions: 'play none none reverse',
+        },
+        y: 50,
+        opacity: 0,
+        rotateX: -15,
+        duration: 0.8,
+        stagger: 0.15,
+        ease: 'power2.out',
+      });
+    }
+
+    // Pricing animation
+    if (pricingRef.current) {
+      gsap.from(pricingRef.current.children, {
+        scrollTrigger: {
+          trigger: pricingRef.current,
+          start: 'top 85%',
+          toggleActions: 'play none none reverse',
+        },
+        y: 60,
+        opacity: 0,
+        scale: 0.9,
+        duration: 0.7,
+        stagger: 0.15,
+        ease: 'back.out(1.5)',
+      });
+    }
+
+    // Contact animation
+    if (contactRef.current) {
+      gsap.from(contactRef.current.children, {
+        scrollTrigger: {
+          trigger: contactRef.current,
+          start: 'top 85%',
+          toggleActions: 'play none none reverse',
+        },
+        y: 40,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.2,
+        ease: 'power2.out',
+      });
+    }
+
+    // Cleanup
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
   }, []);
 
   // Handle booking
@@ -445,10 +604,10 @@ export default function Page() {
       {/* Main Content */}
       <main className="flex-1 pt-20">
         {/* Hero Section */}
-        <section id="home" className="relative overflow-hidden bg-gradient-to-br from-purple-50 to-white">
+        <section ref={heroRef} id="home" className="relative overflow-hidden bg-gradient-to-br from-purple-50 to-white">
           <div className="container mx-auto px-4 py-16 md:py-24">
             <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div className="space-y-6">
+              <div ref={heroContentRef} className="space-y-6">
                 <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
                   Eco-Friendly Cleaning Solutions
                 </Badge>
@@ -497,7 +656,7 @@ export default function Page() {
                   </div>
                 </div>
               </div>
-              <div className="relative">
+              <div ref={heroImageRef} className="relative">
                 <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl">
                   <img 
                     src="/images/hero-cleaning.png" 
@@ -515,7 +674,7 @@ export default function Page() {
         {/* Features Strip */}
         <section className="bg-purple-700 py-8">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-white">
+            <div ref={featuresRef} className="grid grid-cols-2 md:grid-cols-4 gap-6 text-white">
               <div className="flex items-center gap-3">
                 <Shield className="w-8 h-8" />
                 <div>
@@ -551,7 +710,7 @@ export default function Page() {
         {/* Services Section */}
         <section id="services" className="py-16 md:py-24 bg-gray-50">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto mb-12">
+            <div ref={servicesRef} className="text-center max-w-3xl mx-auto mb-12">
               <Badge className="bg-purple-100 text-purple-800 mb-4">Our Services</Badge>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 Professional Cleaning Solutions
@@ -562,7 +721,7 @@ export default function Page() {
               </p>
             </div>
             
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div ref={servicesCardsRef} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {services.map((service) => (
                 <Card key={service.id} className="group hover:shadow-lg transition-all duration-300 overflow-hidden">
                   <div className="aspect-square relative overflow-hidden bg-purple-50">
@@ -609,7 +768,7 @@ export default function Page() {
 
         {/* About Section */}
         <section id="about" className="py-16 md:py-24">
-          <div className="container mx-auto px-4">
+          <div ref={aboutRef} className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="relative">
                 <img 
@@ -693,7 +852,7 @@ export default function Page() {
                 honest service and dependable workmanship.
               </p>
             </div>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div ref={testimonialsRef} className="grid md:grid-cols-3 gap-6">
               {testimonials.map((testimonial, idx) => (
                 <Card key={idx} className="bg-white">
                   <CardHeader>
@@ -738,7 +897,7 @@ export default function Page() {
                 Choose the plan that works best for you. Save more with our recurring service plans.
               </p>
             </div>
-            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div ref={pricingRef} className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {plans.map((plan) => (
                 <Card 
                   key={plan.id} 
@@ -792,7 +951,7 @@ export default function Page() {
 
         {/* Contact Section */}
         <section id="contact" className="py-16 md:py-24 bg-gray-50">
-          <div className="container mx-auto px-4">
+          <div ref={contactRef} className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 gap-12">
               <div>
                 <Badge className="bg-purple-100 text-purple-800 mb-4">Contact Us</Badge>
