@@ -229,132 +229,151 @@ export default function Page() {
     if (heroContentRef.current && heroImageRef.current) {
       const heroTl = gsap.timeline();
       
-      heroTl.from(heroContentRef.current.children, {
-        y: 50,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: 'power3.out',
-      });
+      heroTl.fromTo(heroContentRef.current.children, 
+        { y: 50, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: 'power3.out' }
+      );
       
-      heroTl.from(heroImageRef.current, {
-        x: 100,
-        opacity: 0,
-        duration: 1,
-        ease: 'power3.out',
-      }, '-=0.5');
+      heroTl.fromTo(heroImageRef.current,
+        { x: 100, opacity: 0 },
+        { x: 0, opacity: 1, duration: 1, ease: 'power3.out' },
+        '-=0.5'
+      );
     }
 
     // Features strip animation
     if (featuresRef.current) {
-      gsap.from(featuresRef.current.children, {
-        scrollTrigger: {
-          trigger: featuresRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
-        },
-        y: 30,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: 'power2.out',
-      });
+      gsap.fromTo(featuresRef.current.children,
+        { y: 30, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          scrollTrigger: {
+            trigger: featuresRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+          },
+          duration: 0.6,
+          stagger: 0.1,
+          ease: 'power2.out',
+        }
+      );
     }
 
     // Services section animation
-    if (servicesRef.current && servicesCardsRef.current) {
-      gsap.from(servicesRef.current.children, {
-        scrollTrigger: {
-          trigger: servicesRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
-        },
-        y: 40,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: 'power2.out',
-      });
+    if (servicesRef.current) {
+      gsap.fromTo(servicesRef.current.children,
+        { y: 40, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          scrollTrigger: {
+            trigger: servicesRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+          },
+          duration: 0.6,
+          stagger: 0.1,
+          ease: 'power2.out',
+        }
+      );
+    }
 
-      gsap.from(servicesCardsRef.current.children, {
-        scrollTrigger: {
-          trigger: servicesCardsRef.current,
-          start: 'top 85%',
-          toggleActions: 'play none none reverse',
-        },
-        y: 60,
-        opacity: 0,
-        scale: 0.95,
-        duration: 0.7,
-        stagger: 0.1,
-        ease: 'power2.out',
-      });
+    if (servicesCardsRef.current) {
+      gsap.fromTo(servicesCardsRef.current.children,
+        { y: 60, opacity: 0, scale: 0.95 },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          scrollTrigger: {
+            trigger: servicesCardsRef.current,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse',
+          },
+          duration: 0.7,
+          stagger: 0.1,
+          ease: 'power2.out',
+        }
+      );
     }
 
     // About section animation
     if (aboutRef.current) {
-      gsap.from(aboutRef.current.children, {
-        scrollTrigger: {
-          trigger: aboutRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
-        },
-        x: -50,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.2,
-        ease: 'power2.out',
-      });
+      gsap.fromTo(aboutRef.current.children,
+        { x: -50, opacity: 0 },
+        {
+          x: 0,
+          opacity: 1,
+          scrollTrigger: {
+            trigger: aboutRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+          },
+          duration: 0.8,
+          stagger: 0.2,
+          ease: 'power2.out',
+        }
+      );
     }
 
     // Testimonials animation
     if (testimonialsRef.current) {
-      gsap.from(testimonialsRef.current.children, {
-        scrollTrigger: {
-          trigger: testimonialsRef.current,
-          start: 'top 85%',
-          toggleActions: 'play none none reverse',
-        },
-        y: 50,
-        opacity: 0,
-        rotateX: -15,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: 'power2.out',
-      });
+      gsap.fromTo(testimonialsRef.current.children,
+        { y: 50, opacity: 0, rotateX: -15 },
+        {
+          y: 0,
+          opacity: 1,
+          rotateX: 0,
+          scrollTrigger: {
+            trigger: testimonialsRef.current,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse',
+          },
+          duration: 0.8,
+          stagger: 0.15,
+          ease: 'power2.out',
+        }
+      );
     }
 
     // Pricing animation
     if (pricingRef.current) {
-      gsap.from(pricingRef.current.children, {
-        scrollTrigger: {
-          trigger: pricingRef.current,
-          start: 'top 85%',
-          toggleActions: 'play none none reverse',
-        },
-        y: 60,
-        opacity: 0,
-        scale: 0.9,
-        duration: 0.7,
-        stagger: 0.15,
-        ease: 'back.out(1.5)',
-      });
+      gsap.fromTo(pricingRef.current.children,
+        { y: 60, opacity: 0, scale: 0.9 },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          scrollTrigger: {
+            trigger: pricingRef.current,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse',
+          },
+          duration: 0.7,
+          stagger: 0.15,
+          ease: 'back.out(1.5)',
+        }
+      );
     }
 
     // Contact animation
     if (contactRef.current) {
-      gsap.from(contactRef.current.children, {
-        scrollTrigger: {
-          trigger: contactRef.current,
-          start: 'top 85%',
-          toggleActions: 'play none none reverse',
-        },
-        y: 40,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.2,
-        ease: 'power2.out',
-      });
+      gsap.fromTo(contactRef.current.children,
+        { y: 40, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          scrollTrigger: {
+            trigger: contactRef.current,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse',
+          },
+          duration: 0.6,
+          stagger: 0.2,
+          ease: 'power2.out',
+        }
+      );
     }
 
     // Cleanup
