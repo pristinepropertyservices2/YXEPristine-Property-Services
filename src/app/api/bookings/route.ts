@@ -1,107 +1,142 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
 import { db } from '@/lib/db';
+import { calculateBookingTotal, type AddOnLine } from '@/lib/booking-price';
+
+const bookingInclude = {
+  service: true,
+  plan: true,
+  payment: true,
+  user: {
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+    },
+  },
+} as const;
 
 export async function GET() {
   try {
-    const bookings = await db.booking.findMany({
-      include: {
-        service: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            phone: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true },
     });
-    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const bookings = await db.booking.findMany({
+      where: { userId: user.id },
+      include: bookingInclude,
+      orderBy: { createdAt: 'desc' },
+    });
+
     return NextResponse.json({ bookings });
   } catch (error) {
     console.error('Error fetching bookings:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch bookings' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch bookings' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Sign in required to book' }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { serviceId, date, time, address, city, postalCode, notes, totalPrice, userId } = body;
+    const {
+      serviceId,
+      date,
+      time,
+      address,
+      city,
+      postalCode,
+      notes,
+      durationMinutes,
+      addOnIds,
+    } = body as {
+      serviceId?: string;
+      date?: string;
+      time?: string;
+      address?: string;
+      city?: string;
+      postalCode?: string;
+      notes?: string;
+      durationMinutes?: number;
+      addOnIds?: string[];
+    };
 
-    // For demo purposes, create a guest user if no userId provided
-    let user = userId ? await db.user.findUnique({ where: { id: userId } }) : null;
-    
-    if (!user) {
-      // Create a guest user for the booking
-      user = await db.user.create({
-        data: {
-          email: `guest_${Date.now()}@yxepristine.temp`,
-          name: 'Guest User',
-          password: 'guest_password_not_used',
-        },
-      });
+    if (!serviceId || !date || !time || !address || !city || !postalCode) {
+      return NextResponse.json(
+        { error: 'Missing required booking fields' },
+        { status: 400 }
+      );
     }
 
-    // Find or create the service
-    let service = await db.service.findUnique({ where: { id: serviceId } });
-    
-    if (!service) {
-      // Create service if it doesn't exist (for demo)
-      service = await db.service.create({
-        data: {
-          id: serviceId,
-          name: serviceId.charAt(0).toUpperCase() + serviceId.slice(1) + ' Cleaning',
-          description: 'Professional cleaning service',
-          price: totalPrice,
-          duration: 90,
-          features: '["Professional service", "Eco-friendly products", "Satisfaction guaranteed"]',
-        },
-      });
+    const service = await db.service.findUnique({
+      where: { id: serviceId },
+      include: { addOns: true },
+    });
+
+    if (!service || !service.isActive) {
+      return NextResponse.json({ error: 'Service not found' }, { status: 404 });
     }
+
+    const duration =
+      typeof durationMinutes === 'number' && durationMinutes >= service.duration
+        ? Math.floor(durationMinutes)
+        : service.duration;
+
+    const idSet = new Set((addOnIds || []).filter((x): x is string => typeof x === 'string'));
+    const selectedAddOns: AddOnLine[] = service.addOns
+      .filter((a) => idSet.has(a.id))
+      .map((a) => ({ id: a.id, name: a.name, price: a.price }));
+
+    const totalPrice = calculateBookingTotal(
+      service.price,
+      service.duration,
+      duration,
+      selectedAddOns
+    );
+
+    const addOnsJson =
+      selectedAddOns.length > 0 ? JSON.stringify(selectedAddOns) : null;
 
     const booking = await db.booking.create({
       data: {
-        userId: user.id,
+        userId: session.user.id,
         serviceId: service.id,
         date: new Date(date),
         time,
         address,
         city,
         postalCode,
-        notes,
+        notes: notes || null,
         totalPrice,
+        durationMinutes: duration,
+        addOns: addOnsJson,
         status: 'PENDING',
       },
-      include: {
-        service: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            phone: true,
-          },
-        },
-      },
+      include: bookingInclude,
     });
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       booking,
-      message: 'Booking created successfully' 
+      message: 'Booking created. Proceed to payment.',
     });
   } catch (error) {
     console.error('Error creating booking:', error);
-    return NextResponse.json(
-      { error: 'Failed to create booking' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 });
   }
 }

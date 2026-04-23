@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
 import { db } from '@/lib/db';
 
 // PayPal API base URL
@@ -33,41 +35,85 @@ async function getPayPalAccessToken() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { amount, planId, planName, userId, description } = body;
+    const { amount, planId, planName, userId, description, bookingId } = body as {
+      amount?: number;
+      planId?: string;
+      planName?: string;
+      userId?: string;
+      description?: string;
+      bookingId?: string;
+    };
 
-    if (!amount || amount <= 0) {
+    let resolvedUserId = userId;
+    let resolvedAmount = amount;
+    let resolvedDescription = description || 'Subscription';
+    let resolvedPlanName = planName || 'Payment';
+    const origin = request.nextUrl.origin;
+
+    if (bookingId) {
+      const session = await getServerSession(authOptions);
+      if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+
+      const booking = await db.booking.findUnique({
+        where: { id: bookingId },
+        include: { payment: true, service: true },
+      });
+
+      if (!booking) {
+        return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+      }
+      if (booking.userId !== session.user.id) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+
+      if (booking.payment) {
+        return NextResponse.json(
+          { error: 'Payment already exists for this booking' },
+          { status: 400 }
+        );
+      }
+
+      resolvedUserId = booking.userId;
+      resolvedAmount = booking.totalPrice;
+      resolvedDescription = `Booking ${booking.id} - ${booking.service.name}`;
+      resolvedPlanName = 'Booking';
+    }
+
+    if (!resolvedAmount || resolvedAmount <= 0) {
       return NextResponse.json(
         { error: 'Invalid amount' },
+        { status: 400 }
+      );
+    }
+    if (!resolvedUserId) {
+      return NextResponse.json(
+        { error: 'User required' },
         { status: 400 }
       );
     }
 
     const accessToken = await getPayPalAccessToken();
 
-    // If PayPal is not configured, return mock response for demo
     if (!accessToken) {
-      const mockOrderId = `PAYPAL-MOCK-${Date.now()}`;
-      
-      // Create a mock payment record
-      const payment = await db.payment.create({
-        data: {
-          userId: userId || 'guest',
-          amount: amount,
-          currency: 'CAD',
-          status: 'PENDING',
-          method: 'PAYPAL',
-          paypalId: mockOrderId,
-          description: `${planName} - ${description || 'Subscription'}`,
-        },
-      });
-
       return NextResponse.json({
-        orderId: mockOrderId,
-        paymentId: payment.id,
-        isDemo: true,
-        message: 'PayPal not configured. Using demo mode.',
-      });
+        error: 'PayPal is not configured. Add PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET.',
+      }, { status: 400 });
     }
+
+    const payment = await db.payment.create({
+      data: {
+        userId: resolvedUserId,
+        amount: resolvedAmount,
+        currency: 'CAD',
+        status: 'PENDING',
+        method: 'PAYPAL',
+        paypalId: null,
+        description: `${resolvedPlanName} - ${resolvedDescription}`,
+        bookingId: bookingId || undefined,
+      },
+    });
 
     // Create PayPal order
     const orderResponse = await fetch(`${PAYPAL_API}/v2/checkout/orders`, {
@@ -82,14 +128,21 @@ export async function POST(request: NextRequest) {
           {
             amount: {
               currency_code: 'CAD',
-              value: amount.toFixed(2),
+              value: resolvedAmount.toFixed(2),
             },
-            description: `${planName} - ${description || 'Subscription'}`,
+            description: `${resolvedPlanName} - ${resolvedDescription}`,
+            custom_id: payment.id,
           },
         ],
         application_context: {
           brand_name: 'YXE Pristine Property Services',
           user_action: 'PAY_NOW',
+          return_url: bookingId
+            ? `${origin}/book/${bookingId}/paypal-return?payment_id=${payment.id}`
+            : `${origin}/dashboard`,
+          cancel_url: bookingId
+            ? `${origin}/book/${bookingId}/failed?provider=paypal`
+            : `${origin}/dashboard`,
         },
       }),
     });
@@ -100,16 +153,10 @@ export async function POST(request: NextRequest) {
       throw new Error(order.error.message);
     }
 
-    // Create payment record
-    const payment = await db.payment.create({
+    await db.payment.update({
+      where: { id: payment.id },
       data: {
-        userId: userId || 'guest',
-        amount: amount,
-        currency: 'CAD',
-        status: 'PENDING',
-        method: 'PAYPAL',
         paypalId: order.id,
-        description: `${planName} - ${description || 'Subscription'}`,
       },
     });
 

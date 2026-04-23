@@ -33,27 +33,19 @@ async function getPayPalAccessToken() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { orderId, paymentId, isDemo } = body;
-
-    if (isDemo) {
-      // Demo mode - mark as completed
-      const payment = await db.payment.update({
-        where: { id: paymentId },
-        data: { status: 'COMPLETED' },
-      });
-
-      return NextResponse.json({
-        success: true,
-        status: 'COMPLETED',
-        payment,
-      });
-    }
+    const { orderId, paymentId } = body as { orderId?: string; paymentId?: string };
 
     const accessToken = await getPayPalAccessToken();
 
     if (!accessToken) {
       return NextResponse.json(
         { error: 'PayPal not configured' },
+        { status: 400 }
+      );
+    }
+    if (!orderId) {
+      return NextResponse.json(
+        { error: 'Missing orderId' },
         { status: 400 }
       );
     }
@@ -78,10 +70,22 @@ export async function POST(request: NextRequest) {
 
     if (capture.status === 'COMPLETED') {
       // Update payment record
-      const payment = await db.payment.update({
-        where: { id: paymentId },
-        data: { status: 'COMPLETED' },
-      });
+      const payment = paymentId
+        ? await db.payment.update({
+            where: { id: paymentId },
+            data: { status: 'COMPLETED' },
+          })
+        : await db.payment.update({
+            where: { paypalId: orderId },
+            data: { status: 'COMPLETED' },
+          });
+
+      if (payment.bookingId) {
+        await db.booking.update({
+          where: { id: payment.bookingId },
+          data: { status: 'CONFIRMED' },
+        });
+      }
 
       return NextResponse.json({
         success: true,

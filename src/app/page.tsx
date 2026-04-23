@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,19 +17,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PaymentModal } from '@/components/payment-modal';
 import { 
   Phone, Mail, MapPin, Clock, Star, Shield, Leaf, Sparkles, 
-  ChevronRight, Menu, X, CalendarIcon, Check, User, LogIn,
+  ChevronRight, CalendarIcon, Check, User,
   Facebook, Instagram, ArrowRight, ThumbsUp
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-// Register GSAP plugins
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 // Services data
 const services = [
@@ -38,7 +32,7 @@ const services = [
     description: 'Deep cleaning that removes dirt, stains, and allergens from your carpets using eco-friendly products.',
     price: 89,
     duration: 90,
-    image: '/images/service-carpet.png',
+    image: '/WhatsApp%20Image%202026-04-22%20at%207.23.35%20PM.jpeg',
     features: ['Stain removal', 'Odor elimination', 'Quick drying', 'Eco-friendly products'],
   },
   {
@@ -47,7 +41,7 @@ const services = [
     description: 'Restore your furniture to like-new condition with our professional upholstery cleaning service.',
     price: 79,
     duration: 60,
-    image: '/images/service-upholstery.png',
+    image: '/WhatsApp%20Image%202026-04-22%20at%207.23.35%20PM%20(2).jpeg',
     features: ['Fabric-safe cleaning', 'Stain protection', 'Allergen removal', 'Fresh scent'],
   },
   {
@@ -56,7 +50,7 @@ const services = [
     description: 'Improve your indoor air quality by removing dust, debris, and contaminants from your HVAC system.',
     price: 199,
     duration: 120,
-    image: '/images/service-airduct.png',
+    image: '/portrait-modern-man-cleaning-doing-household-chores.jpg',
     features: ['Improved air quality', 'Energy efficiency', 'Allergen reduction', 'System inspection'],
   },
   {
@@ -65,7 +59,7 @@ const services = [
     description: 'Deep cleaning and sealing of tile surfaces to restore their original beauty and shine.',
     price: 129,
     duration: 90,
-    image: '/images/service-tile.png',
+    image: '/man-doing-professional-home-cleaning-service.jpg',
     features: ['Deep grout cleaning', 'Sealant application', 'Color restoration', 'Mold prevention'],
   },
   {
@@ -74,7 +68,7 @@ const services = [
     description: 'Prevent fire hazards and improve dryer efficiency with professional vent cleaning.',
     price: 149,
     duration: 60,
-    image: '/images/service-airduct.png',
+    image: '/man-holding-dirty-cloth-hand-view-inside-washing-machine.jpg',
     features: ['Fire prevention', 'Energy savings', 'Faster drying', 'Safety inspection'],
   },
   {
@@ -83,7 +77,7 @@ const services = [
     description: 'Deep clean and sanitize your mattress for a healthier, more restful sleep.',
     price: 99,
     duration: 45,
-    image: '/images/service-upholstery.png',
+    image: '/WhatsApp%20Image%202026-04-22%20at%207.23.36%20PM.jpeg',
     features: ['Dust mite removal', 'Stain treatment', 'Sanitization', 'Allergen reduction'],
   },
   {
@@ -92,7 +86,7 @@ const services = [
     description: 'Gentle yet effective cleaning for your hardwood floors to maintain their natural beauty.',
     price: 119,
     duration: 90,
-    image: '/images/service-wood.png',
+    image: '/WhatsApp%20Image%202026-04-22%20at%207.23.33%20PM%20(1).jpeg',
     features: ['Safe for hardwood', 'Polish application', 'Scratch prevention', 'Natural shine'],
   },
   {
@@ -166,7 +160,6 @@ const timeSlots = [
 ];
 
 export default function Page() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -176,20 +169,6 @@ export default function Page() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState('09:00');
   const [bookingStep, setBookingStep] = useState(1);
-  const [activeSection, setActiveSection] = useState('home');
-  const [isScrolled, setIsScrolled] = useState(false);
-  
-  // GSAP Refs
-  const heroRef = useRef<HTMLDivElement>(null);
-  const heroContentRef = useRef<HTMLDivElement>(null);
-  const heroImageRef = useRef<HTMLDivElement>(null);
-  const featuresRef = useRef<HTMLDivElement>(null);
-  const servicesRef = useRef<HTMLDivElement>(null);
-  const servicesCardsRef = useRef<HTMLDivElement>(null);
-  const aboutRef = useRef<HTMLDivElement>(null);
-  const testimonialsRef = useRef<HTMLDivElement>(null);
-  const pricingRef = useRef<HTMLDivElement>(null);
-  const contactRef = useRef<HTMLDivElement>(null);
   
   // Form states
   const [bookingForm, setBookingForm] = useState({
@@ -213,174 +192,6 @@ export default function Page() {
     phone: '',
     message: '',
   });
-
-  // Handle scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // GSAP Animations
-  useEffect(() => {
-    // Hero animations
-    if (heroContentRef.current && heroImageRef.current) {
-      const heroTl = gsap.timeline();
-      
-      heroTl.fromTo(heroContentRef.current.children, 
-        { y: 50, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: 'power3.out' }
-      );
-      
-      heroTl.fromTo(heroImageRef.current,
-        { x: 100, opacity: 0 },
-        { x: 0, opacity: 1, duration: 1, ease: 'power3.out' },
-        '-=0.5'
-      );
-    }
-
-    // Features strip animation
-    if (featuresRef.current) {
-      gsap.fromTo(featuresRef.current.children,
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          scrollTrigger: {
-            trigger: featuresRef.current,
-            start: 'top 80%',
-            toggleActions: 'play none none reverse',
-          },
-          duration: 0.6,
-          stagger: 0.1,
-          ease: 'power2.out',
-        }
-      );
-    }
-
-    // Services section animation
-    if (servicesRef.current) {
-      gsap.fromTo(servicesRef.current.children,
-        { y: 40, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          scrollTrigger: {
-            trigger: servicesRef.current,
-            start: 'top 80%',
-            toggleActions: 'play none none reverse',
-          },
-          duration: 0.6,
-          stagger: 0.1,
-          ease: 'power2.out',
-        }
-      );
-    }
-
-    if (servicesCardsRef.current) {
-      gsap.fromTo(servicesCardsRef.current.children,
-        { y: 60, opacity: 0, scale: 0.95 },
-        {
-          y: 0,
-          opacity: 1,
-          scale: 1,
-          scrollTrigger: {
-            trigger: servicesCardsRef.current,
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
-          duration: 0.7,
-          stagger: 0.1,
-          ease: 'power2.out',
-        }
-      );
-    }
-
-    // About section animation
-    if (aboutRef.current) {
-      gsap.fromTo(aboutRef.current.children,
-        { x: -50, opacity: 0 },
-        {
-          x: 0,
-          opacity: 1,
-          scrollTrigger: {
-            trigger: aboutRef.current,
-            start: 'top 80%',
-            toggleActions: 'play none none reverse',
-          },
-          duration: 0.8,
-          stagger: 0.2,
-          ease: 'power2.out',
-        }
-      );
-    }
-
-    // Testimonials animation
-    if (testimonialsRef.current) {
-      gsap.fromTo(testimonialsRef.current.children,
-        { y: 50, opacity: 0, rotateX: -15 },
-        {
-          y: 0,
-          opacity: 1,
-          rotateX: 0,
-          scrollTrigger: {
-            trigger: testimonialsRef.current,
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
-          duration: 0.8,
-          stagger: 0.15,
-          ease: 'power2.out',
-        }
-      );
-    }
-
-    // Pricing animation
-    if (pricingRef.current) {
-      gsap.fromTo(pricingRef.current.children,
-        { y: 60, opacity: 0, scale: 0.9 },
-        {
-          y: 0,
-          opacity: 1,
-          scale: 1,
-          scrollTrigger: {
-            trigger: pricingRef.current,
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
-          duration: 0.7,
-          stagger: 0.15,
-          ease: 'back.out(1.5)',
-        }
-      );
-    }
-
-    // Contact animation
-    if (contactRef.current) {
-      gsap.fromTo(contactRef.current.children,
-        { y: 40, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          scrollTrigger: {
-            trigger: contactRef.current,
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
-          duration: 0.6,
-          stagger: 0.2,
-          ease: 'power2.out',
-        }
-      );
-    }
-
-    // Cleanup
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
-  }, []);
 
   // Handle booking
   const handleBookService = (service: typeof services[0]) => {
@@ -470,8 +281,12 @@ export default function Page() {
         setIsAuthModalOpen(false);
         setAuthForm({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
       } else {
-        const error = await response.json();
-        throw new Error(error.message || 'Authentication failed');
+        const data = await response.json();
+        const msg =
+          (typeof data.error === 'string' && data.error) ||
+          (typeof data.message === 'string' && data.message) ||
+          'Authentication failed';
+        throw new Error(msg);
       }
     } catch (error) {
       toast({
@@ -513,9 +328,7 @@ export default function Page() {
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
-      setActiveSection(sectionId);
     }
-    setMobileMenuOpen(false);
   };
 
   // Handle plan selection
@@ -526,115 +339,32 @@ export default function Page() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled ? "bg-white shadow-md" : "bg-white/95 backdrop-blur-sm"
-      )}>
-        <nav className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              <img 
-                src="/images/logo.png" 
-                alt="YXE Pristine Property Services" 
-                className="h-12 w-auto"
-              />
-            </div>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-8">
-              {['Home', 'Services', 'About', 'Pricing', 'Contact'].map((item) => (
-                <button
-                  key={item}
-                  onClick={() => scrollToSection(item.toLowerCase())}
-                  className={cn(
-                    "text-sm font-medium transition-colors hover:text-purple-700",
-                    activeSection === item.toLowerCase() ? "text-purple-700" : "text-gray-600"
-                  )}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="hidden md:flex items-center gap-3">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => { setIsAuthModalOpen(true); setAuthTab('login'); }}
-              >
-                <LogIn className="w-4 h-4 mr-2" />
-                Sign In
-              </Button>
-              <Button 
-                size="sm"
-                className="bg-purple-700 hover:bg-purple-800"
-                onClick={() => { setIsAuthModalOpen(true); setAuthTab('signup'); }}
-              >
-                Get Started
-              </Button>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="md:hidden p-2"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-
-          {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <div className="md:hidden mt-4 pb-4 border-t pt-4">
-              <div className="flex flex-col gap-4">
-                {['Home', 'Services', 'About', 'Pricing', 'Contact'].map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => scrollToSection(item.toLowerCase())}
-                    className="text-left text-gray-600 hover:text-purple-700"
-                  >
-                    {item}
-                  </button>
-                ))}
-                <div className="flex flex-col gap-2 pt-4 border-t">
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => { setIsAuthModalOpen(true); setAuthTab('login'); setMobileMenuOpen(false); }}
-                  >
-                    Sign In
-                  </Button>
-                  <Button 
-                    className="w-full bg-purple-700 hover:bg-purple-800"
-                    onClick={() => { setIsAuthModalOpen(true); setAuthTab('signup'); setMobileMenuOpen(false); }}
-                  >
-                    Get Started
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-        </nav>
-      </header>
-
       {/* Main Content */}
-      <main className="flex-1 pt-20">
+      <main className="flex-1">
         {/* Hero Section */}
-        <section ref={heroRef} id="home" className="relative overflow-hidden bg-gradient-to-br from-purple-50 to-white">
-          <div className="container mx-auto px-4 py-16 md:py-24">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div ref={heroContentRef} className="space-y-6">
+        <section id="home" className="relative overflow-hidden">
+          <video
+            className="absolute inset-0 hidden h-full w-full object-cover md:block"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="none"
+          >
+            <source src="/6197066-uhd_3840_2160_25fps.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-black/65" />
+          <div className="container relative z-10 mx-auto px-4 py-16 md:py-24">
+            <div className="mx-auto max-w-4xl">
+              <div className="space-y-6">
                 <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
                   Eco-Friendly Cleaning Solutions
                 </Badge>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
                   Professional Cleaning Services in{' '}
-                  <span className="text-purple-700">Saskatoon</span>
+                  <span className="text-amber-600">Saskatoon</span>
                 </h1>
-                <p className="text-lg text-gray-600 leading-relaxed">
+                <p className="text-lg text-white/90 leading-relaxed">
                   YXE Pristine Property Services provides professional, eco-friendly cleaning solutions 
                   for residential and commercial clients. All-natural products that are tough on dirt 
                   yet safe for your family and pets.
@@ -665,35 +395,24 @@ export default function Page() {
                         </div>
                       ))}
                     </div>
-                    <span className="text-sm text-gray-600">500+ Happy Customers</span>
+                    <span className="text-sm text-white/90">500+ Happy Customers</span>
                   </div>
                   <div className="flex items-center gap-1">
                     {[1, 2, 3, 4, 5].map((i) => (
                       <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                     ))}
-                    <span className="text-sm text-gray-600 ml-1">4.9/5 Rating</span>
+                    <span className="text-sm text-white/90 ml-1">4.9/5 Rating</span>
                   </div>
                 </div>
-              </div>
-              <div ref={heroImageRef} className="relative">
-                <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl">
-                  <img 
-                    src="/images/hero-cleaning.png" 
-                    alt="Professional Cleaning Service"
-                    className="w-full h-auto"
-                  />
-                </div>
-                <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-purple-200 rounded-full opacity-50 blur-2xl" />
-                <div className="absolute -top-6 -right-6 w-32 h-32 bg-purple-300 rounded-full opacity-50 blur-2xl" />
               </div>
             </div>
           </div>
         </section>
 
         {/* Features Strip */}
-        <section className="bg-purple-700 py-8">
+        <section className="mt-8 bg-purple-900 py-8">
           <div className="container mx-auto px-4">
-            <div ref={featuresRef} className="grid grid-cols-2 md:grid-cols-4 gap-6 text-white">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-white">
               <div className="flex items-center gap-3">
                 <Shield className="w-8 h-8" />
                 <div>
@@ -729,8 +448,8 @@ export default function Page() {
         {/* Services Section */}
         <section id="services" className="py-16 md:py-24 bg-gray-50">
           <div className="container mx-auto px-4">
-            <div ref={servicesRef} className="text-center max-w-3xl mx-auto mb-12">
-              <Badge className="bg-purple-100 text-purple-800 mb-4">Our Services</Badge>
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <Badge className="bg-amber-100 text-amber-900 mb-4">Our Services</Badge>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 Professional Cleaning Solutions
               </h2>
@@ -740,7 +459,7 @@ export default function Page() {
               </p>
             </div>
             
-            <div ref={servicesCardsRef} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {services.map((service) => (
                 <Card key={service.id} className="group hover:shadow-lg transition-all duration-300 overflow-hidden">
                   <div className="aspect-square relative overflow-hidden bg-purple-50">
@@ -750,7 +469,7 @@ export default function Page() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute top-3 right-3">
-                      <Badge className="bg-white text-purple-800">
+                      <Badge className="bg-white text-amber-800">
                         ${service.price}+
                       </Badge>
                     </div>
@@ -786,23 +505,34 @@ export default function Page() {
         </section>
 
         {/* About Section */}
-        <section id="about" className="py-16 md:py-24">
-          <div ref={aboutRef} className="container mx-auto px-4">
+        <section id="about" className="py-16 md:py-24 bg-gradient-to-b from-white to-purple-50/30">
+          <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="relative">
-                <img 
-                  src="/images/about.png" 
-                  alt="About YXE Pristine"
-                  className="rounded-2xl shadow-xl"
+                <video
+                  src="/6197563-uhd_3840_2160_25fps.mp4"
+                  className="rounded-2xl shadow-2xl w-full h-[520px] md:h-[680px] object-cover border border-white/30"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="none"
+                  poster="/images/about.png"
                 />
-                <div className="absolute -bottom-6 -right-6 bg-purple-700 text-white p-6 rounded-2xl shadow-lg">
+                <div className="absolute inset-0 rounded-2xl ring-1 ring-black/10" />
+                <div className="absolute -bottom-6 -right-6 bg-amber-600 text-white p-6 rounded-2xl shadow-lg">
                   <p className="text-3xl font-bold">10+</p>
                   <p className="text-sm">Years Experience</p>
                 </div>
               </div>
-              <div className="space-y-6">
-                <Badge className="bg-purple-100 text-purple-800">About Us</Badge>
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+              <div className="space-y-6 rounded-2xl bg-white/90 p-6 md:p-8 border border-purple-100 shadow-sm backdrop-blur-sm">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <Badge className="bg-amber-100 text-amber-900">About Us</Badge>
+                  <span className="text-xs font-medium text-purple-700 bg-purple-50 px-3 py-1 rounded-full">
+                    Trusted in Saskatoon
+                  </span>
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
                   Locally Owned, Family-Run Cleaning Excellence
                 </h2>
                 <p className="text-gray-600 leading-relaxed">
@@ -815,37 +545,51 @@ export default function Page() {
                   for your family, pets, employees, and customers. Using advanced low-moisture cleaning 
                   methods, we deliver deep, effective results with fast drying times and no harsh chemicals.
                 </p>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="rounded-xl bg-purple-50 p-3 text-center">
+                    <p className="text-xl font-bold text-purple-800">500+</p>
+                    <p className="text-xs text-gray-600">Happy clients</p>
+                  </div>
+                  <div className="rounded-xl bg-amber-50 p-3 text-center">
+                    <p className="text-xl font-bold text-amber-700">4.9/5</p>
+                    <p className="text-xs text-gray-600">Average rating</p>
+                  </div>
+                  <div className="rounded-xl bg-purple-50 p-3 text-center">
+                    <p className="text-xl font-bold text-purple-800">100%</p>
+                    <p className="text-xs text-gray-600">Insured team</p>
+                  </div>
+                </div>
                 <div className="grid grid-cols-2 gap-4 pt-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <Check className="w-6 h-6 text-purple-700" />
+                  <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-3">
+                    <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
+                      <Check className="w-5 h-5 text-amber-600" />
                     </div>
                     <div>
                       <p className="font-semibold">Eco-Friendly</p>
                       <p className="text-sm text-gray-500">Safe products</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <Check className="w-6 h-6 text-purple-700" />
+                  <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-3">
+                    <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
+                      <Check className="w-5 h-5 text-amber-600" />
                     </div>
                     <div>
                       <p className="font-semibold">Family Owned</p>
                       <p className="text-sm text-gray-500">Local business</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <Check className="w-6 h-6 text-purple-700" />
+                  <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-3">
+                    <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
+                      <Check className="w-5 h-5 text-amber-600" />
                     </div>
                     <div>
                       <p className="font-semibold">Fast Drying</p>
                       <p className="text-sm text-gray-500">Low moisture</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <Check className="w-6 h-6 text-purple-700" />
+                  <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-3">
+                    <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
+                      <Check className="w-5 h-5 text-amber-600" />
                     </div>
                     <div>
                       <p className="font-semibold">Insured</p>
@@ -862,7 +606,7 @@ export default function Page() {
         <section className="py-16 md:py-24 bg-purple-50">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto mb-12">
-              <Badge className="bg-purple-100 text-purple-800 mb-4">Testimonials</Badge>
+              <Badge className="bg-amber-100 text-amber-900 mb-4">Testimonials</Badge>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 What Our Customers Say
               </h2>
@@ -871,7 +615,7 @@ export default function Page() {
                 honest service and dependable workmanship.
               </p>
             </div>
-            <div ref={testimonialsRef} className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-6">
               {testimonials.map((testimonial, idx) => (
                 <Card key={idx} className="bg-white">
                   <CardHeader>
@@ -886,8 +630,8 @@ export default function Page() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                        <User className="w-5 h-5 text-purple-700" />
+                      <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5 text-amber-600" />
                       </div>
                       <div>
                         <p className="font-semibold">{testimonial.name}</p>
@@ -908,7 +652,7 @@ export default function Page() {
         <section id="pricing" className="py-16 md:py-24">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto mb-12">
-              <Badge className="bg-purple-100 text-purple-800 mb-4">Pricing Plans</Badge>
+              <Badge className="bg-amber-100 text-amber-900 mb-4">Pricing Plans</Badge>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 Flexible Plans for Every Need
               </h2>
@@ -916,18 +660,18 @@ export default function Page() {
                 Choose the plan that works best for you. Save more with our recurring service plans.
               </p>
             </div>
-            <div ref={pricingRef} className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {plans.map((plan) => (
                 <Card 
                   key={plan.id} 
                   className={cn(
                     "relative",
-                    plan.popular && "border-purple-700 border-2 shadow-lg"
+                    plan.popular && "border-amber-500 border-2 shadow-lg"
                   )}
                 >
                   {plan.popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <Badge className="bg-purple-700">Most Popular</Badge>
+                      <Badge className="bg-amber-600 text-white">Most Popular</Badge>
                     </div>
                   )}
                   <CardHeader className="text-center">
@@ -935,7 +679,7 @@ export default function Page() {
                     <CardDescription>{plan.description}</CardDescription>
                     {plan.discount > 0 && (
                       <div className="mt-2">
-                        <span className="text-3xl font-bold text-purple-700">{plan.discount}% OFF</span>
+                        <span className="text-3xl font-bold text-amber-600">{plan.discount}% OFF</span>
                         <p className="text-sm text-gray-500">on all services</p>
                       </div>
                     )}
@@ -944,7 +688,7 @@ export default function Page() {
                     <ul className="space-y-3">
                       {plan.features.map((feature, idx) => (
                         <li key={idx} className="flex items-center gap-2">
-                          <Check className="w-4 h-4 text-purple-700" />
+                          <Check className="w-4 h-4 text-amber-600" />
                           <span className="text-sm">{feature}</span>
                         </li>
                       ))}
@@ -954,7 +698,7 @@ export default function Page() {
                     <Button 
                       className={cn(
                         "w-full",
-                        plan.popular ? "bg-purple-700 hover:bg-purple-800" : ""
+                        plan.popular ? "bg-amber-600 hover:bg-amber-700" : ""
                       )}
                       variant={plan.popular ? "default" : "outline"}
                       onClick={() => handleSelectPlan(plan)}
@@ -970,10 +714,10 @@ export default function Page() {
 
         {/* Contact Section */}
         <section id="contact" className="py-16 md:py-24 bg-gray-50">
-          <div ref={contactRef} className="container mx-auto px-4">
+          <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 gap-12">
               <div>
-                <Badge className="bg-purple-100 text-purple-800 mb-4">Contact Us</Badge>
+                <Badge className="bg-amber-100 text-amber-900 mb-4">Contact Us</Badge>
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                   Get in Touch
                 </h2>
@@ -983,8 +727,8 @@ export default function Page() {
                 
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
-                      <MapPin className="w-5 h-5 text-purple-700" />
+                    <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
+                      <MapPin className="w-5 h-5 text-amber-600" />
                     </div>
                     <div>
                       <p className="font-semibold">Address</p>
@@ -992,28 +736,28 @@ export default function Page() {
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
-                      <Phone className="w-5 h-5 text-purple-700" />
+                    <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
+                      <Phone className="w-5 h-5 text-amber-600" />
                     </div>
                     <div>
                       <p className="font-semibold">Phone</p>
-                      <a href="tel:639-471-3393" className="text-purple-700 hover:underline">639-471-3393</a>
+                      <a href="tel:639-471-3393" className="text-amber-700 hover:underline">639-471-3393</a>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
-                      <Mail className="w-5 h-5 text-purple-700" />
+                    <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
+                      <Mail className="w-5 h-5 text-amber-600" />
                     </div>
                     <div>
                       <p className="font-semibold">Email</p>
-                      <a href="mailto:info@yxepristinepropertyservices.ca" className="text-purple-700 hover:underline">
+                      <a href="mailto:info@yxepristinepropertyservices.ca" className="text-amber-700 hover:underline">
                         info@yxepristinepropertyservices.ca
                       </a>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
-                      <Clock className="w-5 h-5 text-purple-700" />
+                    <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
+                      <Clock className="w-5 h-5 text-amber-600" />
                     </div>
                     <div>
                       <p className="font-semibold">Working Hours</p>
@@ -1300,7 +1044,7 @@ export default function Page() {
                     <p><strong>Date:</strong> {selectedDate ? format(selectedDate, 'PPPP') : 'Not selected'}</p>
                     <p><strong>Time:</strong> {selectedTime}</p>
                     <p><strong>Address:</strong> {bookingForm.address}, {bookingForm.city}</p>
-                    <p className="text-lg font-semibold text-purple-700 mt-2">
+                    <p className="mt-2 text-lg font-semibold text-amber-700">
                       Estimated: ${selectedService?.price}+
                     </p>
                   </div>
@@ -1426,6 +1170,9 @@ export default function Page() {
                     onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })}
                     required
                   />
+                  <p className="text-xs text-muted-foreground">
+                    At least 8 characters, with uppercase, lowercase, and a number.
+                  </p>
                 </div>
                 <Button type="submit" className="w-full bg-purple-700 hover:bg-purple-800">
                   Create Account

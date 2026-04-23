@@ -15,40 +15,47 @@ const getStripe = () => {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { paymentIntentId, paymentId, isDemo } = body;
-
-    if (isDemo) {
-      // Demo mode - mark as completed
-      const payment = await db.payment.update({
-        where: { id: paymentId },
-        data: { status: 'COMPLETED' },
-      });
-
-      return NextResponse.json({
-        success: true,
-        status: 'COMPLETED',
-        payment,
-      });
-    }
+    const { paymentIntentId, paymentId, sessionId } = body as {
+      paymentIntentId?: string;
+      paymentId?: string;
+      sessionId?: string;
+    };
 
     const stripe = getStripe();
 
     if (!stripe) {
-      return NextResponse.json(
-        { error: 'Stripe not configured' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Stripe not configured' }, { status: 400 });
     }
 
-    // Retrieve the PaymentIntent to check status
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    if (!paymentId || (!paymentIntentId && !sessionId)) {
+      return NextResponse.json({ error: 'Missing payment reference' }, { status: 400 });
+    }
 
-    if (paymentIntent.status === 'succeeded') {
-      // Update payment record
+    let paid = false;
+    let status = 'unknown';
+
+    if (sessionId) {
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      status = session.payment_status;
+      paid = session.payment_status === 'paid';
+    } else if (paymentIntentId) {
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      status = paymentIntent.status;
+      paid = paymentIntent.status === 'succeeded';
+    }
+
+    if (paid) {
       const payment = await db.payment.update({
         where: { id: paymentId },
         data: { status: 'COMPLETED' },
       });
+
+      if (payment.bookingId) {
+        await db.booking.update({
+          where: { id: payment.bookingId },
+          data: { status: 'CONFIRMED' },
+        });
+      }
 
       return NextResponse.json({
         success: true,
@@ -59,13 +66,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: false,
-      status: paymentIntent.status,
+      status,
     });
   } catch (error) {
     console.error('Stripe confirm error:', error);
-    return NextResponse.json(
-      { error: 'Failed to confirm payment' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to confirm payment' }, { status: 500 });
   }
 }

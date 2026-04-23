@@ -4,13 +4,27 @@ import { hashPassword, validatePassword } from '@/lib/password';
 import { generateVerificationToken } from '@/lib/tokens';
 import { sendVerificationEmail } from '@/lib/email';
 
+function isSmtpConfigured() {
+  const user = process.env.SMTP_USER || '';
+  const pass = process.env.SMTP_PASSWORD || '';
+  return (
+    user.length > 0 &&
+    pass.length > 0 &&
+    !user.includes('your-email') &&
+    !pass.includes('your-app-password')
+  );
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { name, email, phone, password } = body;
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const normalizedName = String(name || '').trim();
+    const smtpReady = isSmtpConfigured();
 
     // Validate required fields
-    if (!name || !email || !password) {
+    if (!normalizedName || !normalizedEmail || !password) {
       return NextResponse.json(
         { error: 'Name, email, and password are required' },
         { status: 400 }
@@ -19,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(normalizedEmail)) {
       return NextResponse.json(
         { error: 'Invalid email format' },
         { status: 400 }
@@ -37,14 +51,25 @@ export async function POST(request: NextRequest) {
 
     // Check if user already exists
     const existingUser = await db.user.findUnique({
-      where: { email: email.toLowerCase() },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
+      // If a stale, unverified account exists and SMTP is not configured in dev,
+      // allow the user to recover by replacing that account with the new password.
+      if (!existingUser.emailVerified && !smtpReady) {
+        await db.verificationToken.deleteMany({
+          where: { userId: existingUser.id },
+        });
+        await db.user.delete({
+          where: { id: existingUser.id },
+        });
+      } else {
       return NextResponse.json(
         { error: 'An account with this email already exists' },
         { status: 400 }
       );
+      }
     }
 
     // Hash password
@@ -56,34 +81,39 @@ export async function POST(request: NextRequest) {
     // Create user and verification token in transaction
     const user = await db.user.create({
       data: {
-        email: email.toLowerCase(),
-        name,
+        email: normalizedEmail,
+        name: normalizedName,
         phone: phone || null,
         password: hashedPassword,
         role: 'CUSTOMER',
-        emailVerified: null,
+        // In local/dev without SMTP credentials, auto-verify so credentials login works.
+        emailVerified: smtpReady ? null : new Date(),
       },
     });
 
-    await db.verificationToken.create({
-      data: {
-        userId: user.id,
-        token,
-        identifier: 'email_verification',
-        expires,
-      },
-    });
+    if (smtpReady) {
+      await db.verificationToken.create({
+        data: {
+          userId: user.id,
+          token,
+          identifier: 'email_verification',
+          expires,
+        },
+      });
 
-    // Send verification email
-    const emailResult = await sendVerificationEmail(email, name, token);
+      // Send verification email
+      const emailResult = await sendVerificationEmail(normalizedEmail, normalizedName, token);
 
-    if (!emailResult.success) {
-      console.warn('Failed to send verification email:', emailResult.message);
+      if (!emailResult.success) {
+        console.warn('Failed to send verification email:', emailResult.message);
+      }
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Account created successfully. Please check your email to verify your account.',
+      message: smtpReady
+        ? 'Account created successfully. Please check your email to verify your account.'
+        : 'Account created successfully. Email verification is bypassed in local development.',
       user: {
         id: user.id,
         email: user.email,

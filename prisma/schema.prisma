@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -156,25 +156,27 @@ model Plan {
 }
 
 model Booking {
-  id          String       @id @default(cuid())
-  userId      String
-  user        User         @relation(fields: [userId], references: [id])
-  serviceId   String
-  service     Service      @relation(fields: [serviceId], references: [id])
-  planId      String?
-  plan        Plan?        @relation(fields: [planId], references: [id])
-  date        DateTime
-  time        String
-  address     String
-  city        String
-  postalCode  String
-  notes       String?
-  status      BookingStatus @default(PENDING)
-  totalPrice  Float
-  addOns      String?      // JSON string of selected add-ons
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  payment     Payment?
+  id               String        @id @default(cuid())
+  userId           String
+  user             User          @relation(fields: [userId], references: [id])
+  serviceId        String
+  service          Service       @relation(fields: [serviceId], references: [id])
+  planId           String?
+  plan             Plan?         @relation(fields: [planId], references: [id])
+  date             DateTime
+  time             String
+  address          String
+  city             String
+  postalCode       String
+  notes            String?
+  status           BookingStatus @default(PENDING)
+  assignedCleaner  String?
+  totalPrice       Float
+  durationMinutes  Int           // scheduled duration (may exceed base service duration)
+  addOns           String?       // JSON: [{ id, name, price }, ...]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  payment          Payment?
 }
 
 model Payment {

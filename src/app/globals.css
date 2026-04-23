@@ -45,6 +45,7 @@
 
 :root {
   --radius: 0.625rem;
+  --brand-gold: lab(80.251% 10.2273 61.3918);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -119,10 +120,51 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .text-amber-600,
+  .text-amber-700,
+  .text-amber-800,
+  .text-amber-900 {
+    color: var(--brand-gold) !important;
+  }
+
+  .bg-amber-50 {
+    background-color: color-mix(in srgb, var(--brand-gold) 10%, white) !important;
+  }
+
+  .bg-amber-100 {
+    background-color: color-mix(in srgb, var(--brand-gold) 18%, white) !important;
+  }
+
+  .bg-amber-600 {
+    background-color: var(--brand-gold) !important;
+  }
+
+  .border-amber-500 {
+    border-color: var(--brand-gold) !important;
+  }
+
+  .to-amber-600 {
+    --tw-gradient-to: var(--brand-gold) var(--tw-gradient-to-position) !important;
+  }
+
+  .hover\:bg-amber-100:hover {
+    background-color: color-mix(in srgb, var(--brand-gold) 22%, white) !important;
+  }
+
+  .hover\:bg-amber-700:hover {
+    background-color: color-mix(in srgb, var(--brand-gold) 85%, black) !important;
   }
 }

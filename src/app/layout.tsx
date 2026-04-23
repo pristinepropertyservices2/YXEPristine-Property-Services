@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/components/auth-provider";
+import { SiteNavbar } from "@/components/site-navbar";
+import { ScrollToTopButton } from "@/components/scroll-to-top-button";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,7 +22,9 @@ export const metadata: Metadata = {
   keywords: ["cleaning services", "Saskatoon", "carpet cleaning", "upholstery cleaning", "air duct cleaning", "eco-friendly cleaning", "YXE Pristine"],
   authors: [{ name: "YXE Pristine Property Services" }],
   icons: {
-    icon: "/images/favicon.ico",
+    icon: "/images/logo.png",
+    shortcut: "/images/logo.png",
+    apple: "/images/logo.png",
   },
   openGraph: {
     title: "YXE Pristine Property Services",
@@ -44,10 +48,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
+        suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
         <AuthProvider>
+          <SiteNavbar />
           {children}
+          <ScrollToTopButton />
         </AuthProvider>
         <Toaster />
       </body>
