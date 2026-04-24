@@ -33,7 +33,7 @@ jobs:
             git pull --ff-only origin main
 
             echo "Installing dependencies..."
-            npm install
+            npm ci
 
             echo "Applying database migrations..."
             npm run db:generate
