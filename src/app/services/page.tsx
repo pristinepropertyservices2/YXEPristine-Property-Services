@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,9 +31,13 @@ export default function ServicesPage() {
                     poster="/images/service-carpet.png"
                   />
                 ) : (
-                  <img
+                  <Image
                     src={service.mediaSrc}
                     alt={service.name}
+                    width={1200}
+                    height={675}
+                    loading="lazy"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="h-full w-full object-cover"
                   />
                 )}

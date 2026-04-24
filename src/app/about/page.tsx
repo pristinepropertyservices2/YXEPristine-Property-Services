@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Award, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,14 +22,14 @@ export default function AboutPage() {
 
         <div className="grid items-stretch gap-8 md:grid-cols-2">
           <div className="relative overflow-hidden rounded-2xl border bg-black shadow-xl">
-            <video
-              src="/6197563-uhd_3840_2160_25fps.mp4"
+            <Image
+              src="/vecteezy_cleaning-supplies-in-a-white-bucket_47942519.jpg"
+              alt="Cleaning supplies in a white bucket"
+              width={1200}
+              height={800}
+              loading="lazy"
+              sizes="(max-width: 768px) 100vw, 50vw"
               className="h-full min-h-[320px] w-full object-cover"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
             />
             <div className="absolute inset-0 bg-black/30" />
             <div className="absolute bottom-4 left-4 rounded-xl bg-white/90 px-4 py-2 text-sm font-medium text-gray-900">

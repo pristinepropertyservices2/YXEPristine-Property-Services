@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,12 @@ const navItems = [
 export function SiteNavbar() {
   const { status } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+
+  const isActiveRoute = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur-sm">
@@ -36,7 +43,12 @@ export function SiteNavbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-sm font-medium text-gray-600 transition-colors hover:text-purple-700"
+                className={cn(
+                  "text-sm font-medium transition-colors",
+                  isActiveRoute(item.href)
+                    ? "text-purple-700"
+                    : "text-gray-600 hover:text-purple-700"
+                )}
               >
                 {item.label}
               </Link>
@@ -81,7 +93,12 @@ export function SiteNavbar() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
-                className="text-left text-gray-600 hover:text-purple-700"
+                className={cn(
+                  "text-left transition-colors",
+                  isActiveRoute(item.href)
+                    ? "font-medium text-purple-700"
+                    : "text-gray-600 hover:text-purple-700"
+                )}
               >
                 {item.label}
               </Link>

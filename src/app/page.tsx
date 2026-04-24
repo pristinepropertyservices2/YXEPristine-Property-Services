@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -343,16 +344,14 @@ export default function Page() {
       <main className="flex-1">
         {/* Hero Section */}
         <section id="home" className="relative overflow-hidden">
-          <video
-            className="absolute inset-0 hidden h-full w-full object-cover md:block"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="none"
-          >
-            <source src="/6197066-uhd_3840_2160_25fps.mp4" type="video/mp4" />
-          </video>
+          <Image
+            src="/vecteezy_vacuum-cleaner-on-carpet-in-home-interior-for-cleaning-and_69360498.jpg"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="absolute inset-0 object-cover"
+          />
           <div className="absolute inset-0 bg-black/65" />
           <div className="container relative z-10 mx-auto px-4 py-16 md:py-24">
             <div className="mx-auto max-w-4xl">
@@ -463,9 +462,11 @@ export default function Page() {
               {services.map((service) => (
                 <Card key={service.id} className="group hover:shadow-lg transition-all duration-300 overflow-hidden">
                   <div className="aspect-square relative overflow-hidden bg-purple-50">
-                    <img 
-                      src={service.image} 
+                    <Image
+                      src={service.image}
                       alt={service.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute top-3 right-3">
@@ -509,15 +510,13 @@ export default function Page() {
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="relative">
-                <video
-                  src="/6197563-uhd_3840_2160_25fps.mp4"
+                <Image
+                  src="/vecteezy_cleaning-supplies-in-a-white-bucket_47942519.jpg"
+                  alt="Cleaning supplies in a bucket"
+                  width={1200}
+                  height={1600}
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="rounded-2xl shadow-2xl w-full h-[520px] md:h-[680px] object-cover border border-white/30"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="none"
-                  poster="/images/about.png"
                 />
                 <div className="absolute inset-0 rounded-2xl ring-1 ring-black/10" />
                 <div className="absolute -bottom-6 -right-6 bg-amber-600 text-white p-6 rounded-2xl shadow-lg">
@@ -839,9 +838,11 @@ export default function Page() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="bg-white rounded-lg p-2">
-                  <img 
-                    src="/images/logo.png" 
-                    alt="YXE Pristine Property Services" 
+                  <Image
+                    src="/images/logo.png"
+                    alt="YXE Pristine Property Services"
+                    width={160}
+                    height={48}
                     className="h-12 w-auto"
                   />
                 </div>
