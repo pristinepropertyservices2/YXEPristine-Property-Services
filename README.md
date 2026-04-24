@@ -203,7 +203,7 @@ It runs on push to `main` (and manual trigger), then on your VPS it:
 2. Installs dependencies (`npm ci`)
 3. Runs Prisma deploy migrations
 4. Builds app
-5. Restarts PM2 app (`yxe-pristine`)
+5. Restarts PM2 app (`nextjs-app`)
 
 Set these GitHub repository secrets before using it:
 
@@ -212,6 +212,18 @@ Set these GitHub repository secrets before using it:
 - `VPS_USER` - SSH user
 - `VPS_SSH_KEY` - Private SSH key for that user
 - `VPS_APP_DIR` - App directory on server (example: `/var/www/YXEPristine-Property-Services`)
+- `VPS_NODE_BIN` *(optional)* - Directory containing `node` and `npm` if deploy fails with `npm: command not found` (see below)
+
+#### If deploy fails with `npm: command not found`
+
+GitHub Actions uses a **non-interactive** SSH session, so it does not load `~/.bashrc` (where **nvm** / **fnm** often add Node to `PATH`).
+
+The workflow tries to load nvm, fnm, and asdf automatically. If it still fails:
+
+1. On the server, find where `npm` lives: `command -v npm` (while logged in interactively).
+2. Add the **parent directory** of `npm` as repo secret `VPS_NODE_BIN` (for example `/home/deploy/.nvm/versions/node/v20.10.0/bin`).
+
+Or install Node so it is on the default non-interactive path (for example system Node from your OS, or export `PATH` in `~/.profile` for the deploy user).
 
 ## Useful Scripts
 

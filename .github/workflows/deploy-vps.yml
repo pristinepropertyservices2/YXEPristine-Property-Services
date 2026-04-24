@@ -26,7 +26,7 @@ jobs:
           script_stop: true
           script: |
             set -e
-            cd "${{ secrets.VPS_APP_DIR }}"
+            cd /var/www/YXEPristine-Property-Services
 
             echo "Pulling latest code..."
             git checkout main
