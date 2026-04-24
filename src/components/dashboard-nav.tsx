@@ -11,10 +11,12 @@ type DashboardNavProps = {
 
 export function DashboardNav({ showBookService = true }: DashboardNavProps) {
   const { data: session } = useSession();
+  const isAdmin = session?.user?.role === 'ADMIN';
+  const canShowBook = showBookService && !isAdmin;
 
   return (
     <nav className="flex items-center gap-2 sm:gap-4">
-      {showBookService && (
+      {canShowBook && (
         <Link
           href="/book"
           className="text-sm font-medium text-purple-700 hover:underline"

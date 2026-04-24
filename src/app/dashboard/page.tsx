@@ -31,7 +31,8 @@ const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'o
 };
 
 export default function DashboardPage() {
-  const { status } = useSession();
+  const { status, data: session } = useSession();
+  const isAdmin = session?.user?.role === 'ADMIN';
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -76,12 +77,16 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Your dashboard</h1>
           <p className="text-muted-foreground">
-            View booking status and start a new booking anytime.
+            {isAdmin
+              ? 'View your own booking activity. Manage all customers in Admin.'
+              : 'View booking status and start a new booking anytime.'}
           </p>
         </div>
-        <Button asChild className="bg-purple-700 hover:bg-purple-800">
-          <Link href="/book">New booking</Link>
-        </Button>
+        {!isAdmin && (
+          <Button asChild className="bg-purple-700 hover:bg-purple-800">
+            <Link href="/book">New booking</Link>
+          </Button>
+        )}
       </div>
 
       <Card>
@@ -94,10 +99,21 @@ export default function DashboardPage() {
         <CardContent className="space-y-4">
           {bookings.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No bookings yet.{' '}
-              <Link href="/book" className="text-purple-700 underline">
-                Book a service
-              </Link>
+              {isAdmin ? (
+                <>
+                  No personal bookings on this account.{' '}
+                  <Link href="/admin" className="text-purple-700 underline">
+                    Open admin — all bookings
+                  </Link>
+                </>
+              ) : (
+                <>
+                  No bookings yet.{' '}
+                  <Link href="/book" className="text-purple-700 underline">
+                    Book a service
+                  </Link>
+                </>
+              )}
             </p>
           ) : (
             bookings.map((b) => (
