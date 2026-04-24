@@ -57,23 +57,13 @@ export function SiteNavbar() {
 
           <div className="hidden items-center gap-3 md:flex">
             {status === "authenticated" ? (
-              <>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/dashboard">Dashboard</Link>
-                </Button>
-                <Button size="sm" className="bg-purple-700 hover:bg-purple-800" asChild>
-                  <Link href="/book">Book service</Link>
-                </Button>
-              </>
+              <Button size="sm" className="bg-purple-700 hover:bg-purple-800" asChild>
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
             ) : (
-              <>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/auth/signin">Sign In</Link>
-                </Button>
-                <Button size="sm" className="bg-purple-700 hover:bg-purple-800" asChild>
-                  <Link href="/auth/signin">Get Started</Link>
-                </Button>
-              </>
+              <Button size="sm" className="bg-purple-700 hover:bg-purple-800" asChild>
+                <Link href="/auth/signin">Sign In</Link>
+              </Button>
             )}
           </div>
 
@@ -105,31 +95,17 @@ export function SiteNavbar() {
             ))}
             <div className="flex flex-col gap-2 border-t pt-4">
               {status === "authenticated" ? (
-                <>
-                  <Button variant="outline" className="w-full" asChild>
-                    <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
-                      Dashboard
-                    </Link>
-                  </Button>
-                  <Button className="w-full bg-purple-700 hover:bg-purple-800" asChild>
-                    <Link href="/book" onClick={() => setMobileOpen(false)}>
-                      Book service
-                    </Link>
-                  </Button>
-                </>
+                <Button className="w-full bg-purple-700 hover:bg-purple-800" asChild>
+                  <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
+                    Dashboard
+                  </Link>
+                </Button>
               ) : (
-                <>
-                  <Button variant="outline" className="w-full" asChild>
-                    <Link href="/auth/signin" onClick={() => setMobileOpen(false)}>
-                      Sign In
-                    </Link>
-                  </Button>
-                  <Button className="w-full bg-purple-700 hover:bg-purple-800" asChild>
-                    <Link href="/auth/signin" onClick={() => setMobileOpen(false)}>
-                      Get Started
-                    </Link>
-                  </Button>
-                </>
+                <Button className="w-full bg-purple-700 hover:bg-purple-800" asChild>
+                  <Link href="/auth/signin" onClick={() => setMobileOpen(false)}>
+                    Sign In
+                  </Link>
+                </Button>
               )}
             </div>
           </div>

@@ -39,7 +39,7 @@ cp postgres.env.example .env
 2. Ensure at minimum these variables are set in `.env`:
 
 - `DATABASE_URL`
-- `NEXTAUTH_URL`
+- `NEXTAUTH_URL` (on the live server, set this to your public URL, e.g. `https://yourdomain.com` — if it stays `http://localhost:3000`, auth can redirect to localhost after login)
 - `NEXTAUTH_SECRET`
 - `STRIPE_SECRET_KEY`
 - `PAYPAL_CLIENT_ID`

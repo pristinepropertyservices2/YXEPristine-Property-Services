@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -12,11 +12,41 @@ import { toast } from '@/hooks/use-toast';
 import { Loader2, Mail, Lock, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+/**
+ * If the server was misconfigured (NEXTAUTH_URL=localhost) or a stale link
+ * passed a full `http://localhost:3000/...` callback, keep the path so the user
+ * stays on the current domain after sign-in.
+ */
+function normalizeCallbackUrlParam(raw: string | null): string {
+  if (!raw || raw === '/') return '/';
+  if (raw.startsWith('/') && !raw.startsWith('//')) return raw;
+  try {
+    const u = new URL(
+      raw,
+      typeof window !== 'undefined' ? window.location.origin : 'http://localhost',
+    );
+    if (u.hostname === 'localhost' || u.hostname === '127.0.0.1') {
+      return `${u.pathname}${u.search}${u.hash}` || '/';
+    }
+    if (typeof window !== 'undefined' && u.origin === window.location.origin) {
+      return `${u.pathname}${u.search}${u.hash}` || '/';
+    }
+  } catch {
+    return '/';
+  }
+  return '/';
+}
+
 function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/';
+  const rawCallbackUrl = searchParams.get('callbackUrl') || '/';
+  const [callbackUrl, setCallbackUrl] = useState(() => rawCallbackUrl);
   const error = searchParams.get('error');
+
+  useEffect(() => {
+    setCallbackUrl(normalizeCallbackUrlParam(rawCallbackUrl));
+  }, [rawCallbackUrl]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
