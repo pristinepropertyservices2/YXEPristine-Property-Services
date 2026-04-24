@@ -87,6 +87,132 @@ npm run build
 npm run start
 ```
 
+## Server Deployment (PM2 + PostgreSQL)
+
+Use this quick flow for a VPS/Ubuntu server.
+
+1) Install runtime tools (once):
+
+```bash
+sudo apt update
+sudo npm install -g pm2
+```
+
+2) Clone app, install deps, and set env:
+
+```bash
+git clone <your-repo-url>
+cd YXEPristine-Property-Services
+npm install
+cp postgres.env.example .env
+```
+
+Update `.env` with production values (`NEXTAUTH_URL`, `NEXTAUTH_SECRET`, Stripe/PayPal keys, etc.).
+
+3) Prepare database and build app:
+
+```bash
+npm run db:generate
+npx prisma migrate deploy
+npm run db:seed
+npm run build
+```
+
+4) Run app with PM2:
+
+```bash
+pm2 start npm --name yxe-pristine -- run start
+pm2 save
+pm2 startup
+```
+
+5) Open required firewall ports:
+
+- App: `3000`
+- Postgres: your DB port (keep closed publicly unless needed)
+
+### Update / redeploy
+
+```bash
+git pull
+npm install
+npm run db:generate
+npx prisma migrate deploy
+npm run build
+pm2 restart yxe-pristine
+```
+
+### Rollback deployment
+
+#### 1) App rollback (fast)
+
+If a release is bad, switch to a previous commit and restart PM2:
+
+```bash
+git log --oneline -n 10
+git checkout <previous-good-commit>
+npm install
+npm run build
+pm2 restart yxe-pristine
+```
+
+Then create a rollback branch/tag from that commit before the next deploy.
+
+#### 2) Database rollback (important)
+
+`prisma migrate deploy` is forward-only in production. For rollbacks:
+
+- Prefer a new "fix" migration instead of trying to reverse history.
+- If you must fully revert data/schema, restore from backup (below).
+
+#### 3) Postgres backup before deploy
+
+```bash
+mkdir -p backups
+pg_dump "$DATABASE_URL" > backups/pre_deploy_$(date +%F_%H-%M-%S).sql
+```
+
+#### 4) Postgres restore (if needed)
+
+```bash
+psql "$DATABASE_URL" < backups/<backup-file>.sql
+```
+
+After restore:
+
+```bash
+npm run db:generate
+npm run build
+pm2 restart yxe-pristine
+```
+
+### Useful checks
+
+```bash
+pm2 status
+pm2 logs yxe-pristine
+```
+
+### GitHub Actions deployment to VPS
+
+This repo includes `.github/workflows/deploy-vps.yml`.
+
+It runs on push to `main` (and manual trigger), then on your VPS it:
+
+1. Pulls latest code
+2. Installs dependencies (`npm ci`)
+3. Runs Prisma deploy migrations
+4. Builds app
+5. Restarts PM2 app (`yxe-pristine`)
+
+Set these GitHub repository secrets before using it:
+
+- `VPS_HOST` - Server IP/domain
+- `VPS_PORT` - SSH port (usually `22`)
+- `VPS_USER` - SSH user
+- `VPS_SSH_KEY` - Private SSH key for that user
+- `VPS_APP_DIR` - App directory on server (example: `/var/www/YXEPristine-Property-Services`)
+
 ## Useful Scripts
 
 - `npm run dev` - Start development server
