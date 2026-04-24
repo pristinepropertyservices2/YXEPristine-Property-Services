@@ -4,17 +4,24 @@ import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 
-export function DashboardNav() {
+type DashboardNavProps = {
+  /** When false, hides customer "Book service" (e.g. on admin area). */
+  showBookService?: boolean;
+};
+
+export function DashboardNav({ showBookService = true }: DashboardNavProps) {
   const { data: session } = useSession();
 
   return (
     <nav className="flex items-center gap-2 sm:gap-4">
-      <Link
-        href="/book"
-        className="text-sm font-medium text-purple-700 hover:underline"
-      >
-        Book service
-      </Link>
+      {showBookService && (
+        <Link
+          href="/book"
+          className="text-sm font-medium text-purple-700 hover:underline"
+        >
+          Book service
+        </Link>
+      )}
       {session?.user?.role === 'ADMIN' && (
         <Link
           href="/admin"

@@ -13,7 +13,7 @@ export default function AdminLayout({
           <Link href="/admin" className="font-semibold text-slate-800">
             Admin — Bookings
           </Link>
-          <DashboardNav />
+          <DashboardNav showBookService={false} />
         </div>
       </header>
       <main className="container mx-auto px-4 py-8">{children}</main>
