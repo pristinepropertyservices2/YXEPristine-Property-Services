@@ -10,43 +10,44 @@ concurrency:
   group: deploy-vps-production
   cancel-in-progress: false
 
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-
     steps:
-      - name: Deploy over SSH
-        uses: appleboy/ssh-action@v1.0.3
+      - name: SSH deploy
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT || 22 }}
+          timeout: 120s
+          command_timeout: 20m
           script_stop: true
           script: |
             set -e
+            # Load env so npm/node/pm2 are on PATH (nvm, fnm, local installs, etc.)
+            export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:$PATH"
+            [ -f /etc/profile ] && . /etc/profile
+            [ -f "$HOME/.profile" ] && . "$HOME/.profile"
+            [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"
+            NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+            if command -v fnm >/dev/null 2>&1; then eval "$(fnm env)"; fi
+            command -v npm >/dev/null || { echo "ERROR: npm not found on VPS after loading shell profile. Install Node or add it to PATH."; exit 127; }
             cd /var/www/YXEPristine-Property-Services
-
-            echo "Pulling latest code..."
-            git checkout main
-            git pull --ff-only origin main
-
-            echo "Installing dependencies..."
-            npm ci
-
-            echo "Applying database migrations..."
-            npm run db:generate
-            npx prisma migrate deploy
-
-            echo "Building app..."
+            git pull
+            npm install 
             npm run build
+            pm2 restart nextjs-app
+            systemctl reload nginx
+            echo "Deploy successfully"
 
-            echo "Restarting app with PM2..."
-            if pm2 describe nextjs-app >/dev/null 2>&1; then
-              pm2 restart nextjs-app
-            else
-              pm2 start npm --name nextjs-app -- run start
-            fi
-
-            pm2 save
+      - name: Deployment complete
+        run: |
+          echo "::notice title=Deploy::Deploy successfully"
+          {
+            echo "## Deploy successfully"
+            echo ""
+            echo "Hostinger VPS deploy finished: **pm2** process \`nextjs-app\` restarted and **nginx** reloaded."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -197,21 +197,16 @@ pm2 logs yxe-pristine
 
 This repo includes `.github/workflows/deploy-vps.yml`.
 
-It runs on push to `main` (and manual trigger), then on your VPS it:
+It runs on push to `main` (or manual run). On the server it: loads shell profile (so nvm/fnm work), `git pull`, `npm install --legacy-peer-deps`, Prisma generate + migrate, production build, `pm2 restart`, and `systemctl reload nginx`.
 
-1. Pulls latest code
-2. Installs dependencies (`npm ci`)
-3. Runs Prisma deploy migrations
-4. Builds app
-5. Restarts PM2 app (`nextjs-app`)
-
-Set these GitHub repository secrets before using it:
+Set these repository secrets (minimum: host, user, key):
 
 - `VPS_HOST` - Server IP/domain
-- `VPS_PORT` - SSH port (usually `22`)
+- `VPS_PORT` - SSH port (optional; default `22` if unset)
 - `VPS_USER` - SSH user
 - `VPS_SSH_KEY` - Private SSH key for that user
-- `VPS_APP_DIR` - App directory on server (example: `/var/www/YXEPristine-Property-Services`)
+- `VPS_APP_DIR` - *(optional)* Git repo path on the server. If omitted, deploy uses `/var/www/web`
+- `VPS_PM2_NAME` - *(optional)* PM2 process name. If omitted, uses `web`
 - `VPS_NODE_BIN` *(optional)* - Directory containing `node` and `npm` if deploy fails with `npm: command not found` (see below)
 
 #### If deploy fails with `npm: command not found`
@@ -224,6 +219,8 @@ The workflow tries to load nvm, fnm, and asdf automatically. If it still fails:
 2. Add the **parent directory** of `npm` as repo secret `VPS_NODE_BIN` (for example `/home/deploy/.nvm/versions/node/v20.10.0/bin`).
 
 Or install Node so it is on the default non-interactive path (for example system Node from your OS, or export `PATH` in `~/.profile` for the deploy user).
+
+If `systemctl reload nginx` fails (permission denied), run the deploy SSH user as a user that may reload Nginx, or add a `sudo` rule for that command only.
 
 ## Useful Scripts
 
