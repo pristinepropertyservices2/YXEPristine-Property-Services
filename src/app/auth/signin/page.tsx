@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,14 +12,16 @@ import { toast } from '@/hooks/use-toast';
 import { Loader2, Mail, Lock, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+const stripWww = (h: string) => h.replace(/^www\./, '');
+
 /**
- * If the server was misconfigured (NEXTAUTH_URL=localhost) or a stale link
- * passed a full `http://localhost:3000/...` callback, keep the path so the user
- * stays on the current domain after sign-in.
+ * Normalizes `callbackUrl` for sign-in. Handles localhost, apex vs www, and
+ * full URLs that should become same-site paths.
  */
 function normalizeCallbackUrlParam(raw: string | null): string {
   if (!raw || raw === '/') return '/';
   if (raw.startsWith('/') && !raw.startsWith('//')) return raw;
+  if (typeof window === 'undefined') return '/';
   try {
     const u = new URL(
       raw,
@@ -28,7 +30,10 @@ function normalizeCallbackUrlParam(raw: string | null): string {
     if (u.hostname === 'localhost' || u.hostname === '127.0.0.1') {
       return `${u.pathname}${u.search}${u.hash}` || '/';
     }
-    if (typeof window !== 'undefined' && u.origin === window.location.origin) {
+    if (u.origin === window.location.origin) {
+      return `${u.pathname}${u.search}${u.hash}` || '/';
+    }
+    if (stripWww(u.hostname) === stripWww(window.location.hostname)) {
       return `${u.pathname}${u.search}${u.hash}` || '/';
     }
   } catch {
@@ -37,8 +42,12 @@ function normalizeCallbackUrlParam(raw: string | null): string {
   return '/';
 }
 
+/** Default page when the user did not open sign-in with `?callbackUrl=...` */
+function getDefaultPostSignInPath(): string {
+  return '/dashboard';
+}
+
 function SignInContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const rawCallbackUrl = searchParams.get('callbackUrl') || '/';
   const [callbackUrl, setCallbackUrl] = useState(() => rawCallbackUrl);
@@ -92,7 +101,13 @@ function SignInContent() {
           title: 'Welcome back!',
           description: 'You have been signed in successfully.',
         });
-        router.push(callbackUrl);
+        // Full-page navigation so the new session cookie is always applied (App Router
+        // client `router.push` can run before the session is readable).
+        let dest = callbackUrl;
+        if (!dest || dest === '/') {
+          dest = getDefaultPostSignInPath();
+        }
+        window.location.assign(dest);
       }
     } catch (err) {
       toast({
