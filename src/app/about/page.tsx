@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Award, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { Award, Check, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +23,7 @@ export default function AboutPage() {
         <div className="grid items-stretch gap-8 md:grid-cols-2">
           <div className="relative overflow-hidden rounded-2xl border bg-black shadow-xl">
             <Image
-              src="/vecteezy_cleaning-supplies-in-a-white-bucket_47942519.jpg"
+              src="/1a4b07c0-2828-46a3-b082-e4c5e0bc9ded.png"
               alt="Cleaning supplies in a white bucket"
               width={1200}
               height={800}
@@ -105,6 +105,74 @@ export default function AboutPage() {
               chemical exposure.
             </CardContent>
           </Card>
+        </div>
+
+        <div className="rounded-2xl border bg-white p-6 shadow-sm md:p-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-purple-900 md:text-4xl">
+              Carpet Cleaning vs. Steam Cleaning
+            </h2>
+            <p className="mt-2 text-muted-foreground">There&apos;s a better, cleaner way.</p>
+          </div>
+          <div className="relative mt-8 grid gap-6 lg:grid-cols-2">
+            <div className="overflow-hidden rounded-2xl border border-purple-100">
+              <div className="bg-purple-900 px-6 py-4 text-center">
+                <p className="text-xl font-bold text-white">YXE Pristine Property Services</p>
+                <p className="text-base font-semibold text-amber-300">
+                  Low-Moisture, Eco-Friendly Cleaning
+                </p>
+              </div>
+              <ul className="space-y-3 p-6 text-sm text-gray-700">
+                {[
+                  "Uses minimal water and all-natural, biodegradable solutions",
+                  "Dries in 1-3 hours",
+                  "Gentle on carpets - extends their life",
+                  "Reduces risk of mold, mildew, and bacteria",
+                  "Safe for kids, pets, and the environment",
+                  "Leaves carpets clean, fresh & ready to enjoy",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3">
+                    <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-purple-900 text-white">
+                      <Check className="h-3.5 w-3.5" />
+                    </span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="overflow-hidden rounded-2xl border border-amber-200">
+              <div className="bg-amber-600 px-6 py-4 text-center">
+                <p className="text-xl font-bold text-white">Traditional Steam Cleaning</p>
+                <p className="text-base font-semibold text-amber-100">
+                  High-Moisture, Conventional Methods
+                </p>
+              </div>
+              <ul className="space-y-3 p-6 text-sm text-gray-700">
+                {[
+                  "Uses high pressure and excessive water",
+                  "Dries in 12-24+ hours",
+                  "Can lead to carpet shrinkage and wear",
+                  "Higher risk of mold and mildew",
+                  "May contain harsh chemicals and residues",
+                  "Longer drying time disrupts your day",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3">
+                    <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-600 text-white">
+                      <Check className="h-3.5 w-3.5" />
+                    </span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="pointer-events-none absolute inset-0 hidden items-center justify-center lg:flex">
+              <div className="rounded-full border-4 border-white bg-purple-900 px-5 py-4 text-3xl font-bold text-white shadow-lg">
+                VS.
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="rounded-2xl border bg-white p-6 shadow-sm md:p-8">

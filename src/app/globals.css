@@ -167,4 +167,5 @@
   .hover\:bg-amber-700:hover {
     background-color: color-mix(in srgb, var(--brand-gold) 85%, black) !important;
   }
+
 }

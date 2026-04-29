@@ -30,65 +30,65 @@ const services = [
   {
     id: 'carpet',
     name: 'Carpet Cleaning',
-    description: 'Deep cleaning that removes dirt, stains, and allergens from your carpets using eco-friendly products.',
-    price: 89,
+    description: 'Includes cleaning, deodorizing, disinfecting, and protecting for carpets and rugs.',
+    price: 119,
     duration: 90,
-    image: '/WhatsApp%20Image%202026-04-22%20at%207.23.35%20PM.jpeg',
-    features: ['Stain removal', 'Odor elimination', 'Quick drying', 'Eco-friendly products'],
+    image: '/Capet Cleaning1.png',
+    features: ['$119 - First 2 Rooms', 'Whole House: $269 (5 rooms + hall)', 'Additional Rooms: $60 each', 'Single Room: $75 (only with other services)'],
   },
   {
     id: 'upholstery',
     name: 'Upholstery Cleaning',
-    description: 'Restore your furniture to like-new condition with our professional upholstery cleaning service.',
-    price: 79,
+    description: 'Includes cleaning, deodorizing, disinfecting, and protecting for upholstered furniture.',
+    price: 119,
     duration: 60,
-    image: '/WhatsApp%20Image%202026-04-22%20at%207.23.35%20PM%20(2).jpeg',
-    features: ['Fabric-safe cleaning', 'Stain protection', 'Allergen removal', 'Fresh scent'],
+    image: '/Upholstery Cleaning 1.png',
+    features: ['Sofa: $139 | Loveseat: $99 | Chair: $70', 'All 3 Pieces: $269', 'L-Shaped Sectional: $189 - $350', 'U-Shaped Sectional: $229 - $400'],
   },
   {
     id: 'airduct',
     name: 'Air Duct Cleaning',
-    description: 'Improve your indoor air quality by removing dust, debris, and contaminants from your HVAC system.',
-    price: 199,
+    description: 'Includes cleaning, deodorizing, and disinfecting for full HVAC duct systems.',
+    price: 249,
     duration: 120,
-    image: '/portrait-modern-man-cleaning-doing-household-chores.jpg',
-    features: ['Improved air quality', 'Energy efficiency', 'Allergen reduction', 'System inspection'],
+    image: '/Air Duct Cleaning 1.png',
+    features: ['$249 - Up to 10 vents (full system cleaning)', 'Additional vents: $35 each', 'Permanent electrostatic air filter: $125', 'Dryer vent add-on: from $50 with duct cleaning'],
   },
   {
     id: 'tile',
     name: 'Tile & Grout Cleaning',
-    description: 'Deep cleaning and sealing of tile surfaces to restore their original beauty and shine.',
-    price: 129,
+    description: 'Includes cleaning, deodorizing, and disinfecting for tile, grout, and shower areas.',
+    price: 119,
     duration: 90,
-    image: '/man-doing-professional-home-cleaning-service.jpg',
-    features: ['Deep grout cleaning', 'Sealant application', 'Color restoration', 'Mold prevention'],
+    image: '/Tile and Grout Cleaning 1.png',
+    features: ['$99 - First 2 areas (up to 200 sq. ft.)', 'Additional areas: $0.60 per sq. ft.', 'Grout color sealing: $1.25 per sq. ft.', 'Shower walls & floors: $1.50 per sq. ft.'],
   },
   {
     id: 'dryervent',
     name: 'Dryer Vent Cleaning',
-    description: 'Prevent fire hazards and improve dryer efficiency with professional vent cleaning.',
-    price: 149,
+    description: 'Includes cleaning, deodorizing, and disinfecting to improve airflow and reduce fire risk.',
+    price: 119,
     duration: 60,
-    image: '/man-holding-dirty-cloth-hand-view-inside-washing-machine.jpg',
-    features: ['Fire prevention', 'Energy savings', 'Faster drying', 'Safety inspection'],
+    image: '/Dryer Vent Cleaning 2.png',
+    features: ['Side wall vent: $119', 'Roof vent: $149', 'Save $50 when combined with Air Duct Cleaning', 'Full lint, dust, and debris removal included'],
   },
   {
     id: 'mattress',
     name: 'Mattress Cleaning',
-    description: 'Deep clean and sanitize your mattress for a healthier, more restful sleep.',
-    price: 99,
+    description: 'Includes cleaning, deodorizing, disinfecting, and protecting for cleaner, healthier sleep surfaces.',
+    price: 119,
     duration: 45,
-    image: '/WhatsApp%20Image%202026-04-22%20at%207.23.36%20PM.jpeg',
-    features: ['Dust mite removal', 'Stain treatment', 'Sanitization', 'Allergen reduction'],
+    image: '/Mattress cleaning 1.png',
+    features: ['Twin: $89 (one side)', 'Queen: $109 (one side)', 'King: $139 (one side)', '2nd side: 50% OFF'],
   },
   {
     id: 'wood',
     name: 'Wood Floor Cleaning',
-    description: 'Gentle yet effective cleaning for your hardwood floors to maintain their natural beauty.',
-    price: 119,
+    description: 'Includes cleaning, deodorizing, disinfecting, and sealing for wood floor protection.',
+    price: 149,
     duration: 90,
-    image: '/WhatsApp%20Image%202026-04-22%20at%207.23.33%20PM%20(1).jpeg',
-    features: ['Safe for hardwood', 'Polish application', 'Scratch prevention', 'Natural shine'],
+    image: '/Hard Wood Floor Cleaning1.png',
+    features: ['$0.99 per sq. ft. (cleaning + 2 sealant coats)', 'Additional sealant coat: +$0.25 per sq. ft.', 'Hardwood-safe process', 'Helps maintain natural shine and finish'],
   },
   {
     id: 'postconstruction',
@@ -96,7 +96,7 @@ const services = [
     description: 'Thorough cleaning after renovation or construction to make your space move-in ready.',
     price: 299,
     duration: 240,
-    image: '/images/hero-cleaning.png',
+    image: '/post constuction cleaning 1.png',
     features: ['Dust removal', 'Debris cleanup', 'Window cleaning', 'Final detailing'],
   },
 ];
@@ -345,18 +345,18 @@ export default function Page() {
         {/* Hero Section */}
         <section id="home" className="relative overflow-hidden">
           <Image
-            src="/vecteezy_vacuum-cleaner-on-carpet-in-home-interior-for-cleaning-and_69360498.jpg"
+            src="/WEBSITE HOME PAGE BANNER IMAGE OPTION.png"
             alt=""
             fill
             priority
             sizes="100vw"
             className="absolute inset-0 object-cover"
           />
-          <div className="absolute inset-0 bg-black/65" />
+          <div className="absolute inset-0 bg-black/40" />
           <div className="container relative z-10 mx-auto px-4 py-16 md:py-24">
-            <div className="mx-auto max-w-4xl">
+            <div className="max-w-4xl md:max-w-3xl">
               <div className="space-y-6">
-                <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
+                <Badge className="border-0 bg-gradient-to-r from-[#B8860B] via-[#D4AF37] to-[#C9971A] text-black hover:from-[#A57908] hover:via-[#CFA52A] hover:to-[#B8860B]">
                   Eco-Friendly Cleaning Solutions
                 </Badge>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
@@ -368,37 +368,19 @@ export default function Page() {
                   for residential and commercial clients. All-natural products that are tough on dirt 
                   yet safe for your family and pets.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button 
-                    size="lg" 
-                    className="bg-purple-700 hover:bg-purple-800"
-                    onClick={() => scrollToSection('services')}
+                <div className="flex">
+                  <Button
+                    size="lg"
+                    asChild
+                    className="bg-gradient-to-r from-[#B8860B] via-[#D4AF37] to-[#C9971A] text-black font-semibold shadow-lg hover:from-[#A57908] hover:via-[#CFA52A] hover:to-[#B8860B]"
                   >
-                    View Our Services
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </Button>
-                  <Button 
-                    size="lg" 
-                    variant="outline"
-                    onClick={() => scrollToSection('contact')}
-                  >
-                    Get a Free Quote
+                    <Link href="/services">Book Your Service Today</Link>
                   </Button>
                 </div>
                 <div className="flex items-center gap-6 pt-4">
-                  <div className="flex items-center gap-2">
-                    <div className="flex -space-x-2">
-                      {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="w-8 h-8 rounded-full bg-purple-100 border-2 border-white flex items-center justify-center text-xs font-medium text-purple-800">
-                          {String.fromCharCode(64 + i)}
-                        </div>
-                      ))}
-                    </div>
-                    <span className="text-sm text-white/90">500+ Happy Customers</span>
-                  </div>
                   <div className="flex items-center gap-1">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <Star key={i} className="w-4 h-4 fill-[#D4AF37] text-[#D4AF37]" />
                     ))}
                     <span className="text-sm text-white/90 ml-1">4.9/5 Rating</span>
                   </div>
@@ -448,7 +430,7 @@ export default function Page() {
         <section id="services" className="py-16 md:py-24 bg-gray-50">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto mb-12">
-              <Badge className="bg-amber-100 text-amber-900 mb-4">Our Services</Badge>
+              <Badge className="border-0 bg-gradient-to-r from-[#B8860B] via-[#D4AF37] to-[#C9971A] text-black mb-4">Our Services</Badge>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 Professional Cleaning Solutions
               </h2>
@@ -457,7 +439,7 @@ export default function Page() {
                 that are tough on dirt but safe for your family, pets, and the environment.
               </p>
             </div>
-            
+
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {services.map((service) => (
                 <Card key={service.id} className="group hover:shadow-lg transition-all duration-300 overflow-hidden">
@@ -502,6 +484,125 @@ export default function Page() {
                 </Card>
               ))}
             </div>
+
+            <div className="mx-auto mt-10 max-w-8xl rounded-2xl border border-purple-100 bg-white/95 p-6 shadow-sm md:p-10">
+              <div className="grid items-center gap-8 md:grid-cols-[1.25fr_1fr]">
+                <div>
+                  <p className="text-center text-3xl md:text-5xl font-bold leading-tight md:text-left">
+                    <span className="text-purple-900">All-Natural</span>
+                    <br />
+                    <span className="text-purple-900">Carpet Cleaning</span>
+                    <br />
+                    <span className="text-amber-700">for Your Home</span>
+                    <br />
+                    <span className="text-amber-700">or Business...</span>
+                  </p>
+                  <p className="mt-6 text-left text-gray-700 leading-relaxed">
+                    At YXE Pristine Property Services, we believe a truly clean space should be healthy, safe, and welcoming.
+                    Our all-natural, eco-friendly carpet cleaning solution delivers a deep, thorough clean without harsh chemicals
+                    or excessive moisture. Our low-moisture cleaning process uses biodegradable, plant-based products that are tough
+                    on dirt and stains but gentle on your carpets, your family, your pets, and the environment. With fast drying times,
+                    exceptional results, and a commitment to quality, YXE Pristine Property Services is the trusted choice for homes
+                    and businesses across the region.
+                  </p>
+                  <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="rounded-xl border border-purple-100 px-4 py-5 text-center">
+                      <Leaf className="mx-auto h-9 w-9 text-amber-700" />
+                      <p className="mt-3 text-sm font-bold tracking-wide text-purple-900">ECO-FRIENDLY</p>
+                      <p className="mt-2 text-sm text-gray-600">Safe for your family, pets, and the planet.</p>
+                    </div>
+                    <div className="rounded-xl border border-purple-100 px-4 py-5 text-center">
+                      <Shield className="mx-auto h-9 w-9 text-amber-700" />
+                      <p className="mt-3 text-sm font-bold tracking-wide text-purple-900">TRUSTED PROFESSIONALS</p>
+                      <p className="mt-2 text-sm text-gray-600">Highly trained and experienced technicians.</p>
+                    </div>
+                    <div className="rounded-xl border border-purple-100 px-4 py-5 text-center">
+                      <Sparkles className="mx-auto h-9 w-9 text-amber-700" />
+                      <p className="mt-3 text-sm font-bold tracking-wide text-purple-900">PREMIUM QUALITY RESULTS</p>
+                      <p className="mt-2 text-sm text-gray-600">Noticeably cleaner carpets that last longer.</p>
+                    </div>
+                    <div className="rounded-xl border border-purple-100 px-4 py-5 text-center">
+                      <Clock className="mx-auto h-9 w-9 text-amber-700" />
+                      <p className="mt-3 text-sm font-bold tracking-wide text-purple-900">FAST DRYING</p>
+                      <p className="mt-2 text-sm text-gray-600">Low moisture means quicker dry times and less disruption.</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="overflow-hidden rounded-xl border border-purple-100">
+                  <Image
+                    src="/Pasted image (2).png"
+                    alt="Carpet cleaning technician"
+                    width={1400}
+                    height={2800}
+                    sizes="(max-width: 768px) 100vw, 45vw"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="mx-auto mt-10 max-w-8xl rounded-2xl border border-purple-100 bg-white/95 p-6 shadow-sm md:p-10">
+              <div className="text-center">
+                <h3 className="text-3xl md:text-5xl font-bold text-purple-900">Carpet Cleaning vs. Steam Cleaning</h3>
+                <p className="mt-2 text-lg text-gray-600">There&apos;s a better, cleaner way.</p>
+              </div>
+
+              <div className="relative mt-8 grid gap-6 lg:grid-cols-2">
+                <div className="rounded-2xl border border-purple-100 bg-white overflow-hidden">
+                  <div className="bg-purple-900 px-6 py-4 text-center">
+                    <p className="text-2xl font-bold text-white">YXE Pristine Property Services</p>
+                    <p className="text-lg font-semibold text-amber-300">Low-Moisture, Eco-Friendly Cleaning</p>
+                  </div>
+                  <ul className="space-y-4 p-6 text-gray-700">
+                    {[
+                      "Uses minimal water and all-natural, biodegradable solutions",
+                      "Dries in 1-3 hours",
+                      "Gentle on carpets - extends their life",
+                      "Reduces risk of mold, mildew, and bacteria",
+                      "Safe for kids, pets, and the environment",
+                      "Leaves carpets clean, fresh & ready to enjoy",
+                    ].map((item) => (
+                      <li key={item} className="flex items-start gap-3">
+                        <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-purple-900 text-white">
+                          <Check className="h-3.5 w-3.5" />
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="rounded-2xl border border-amber-200 bg-white overflow-hidden">
+                  <div className="bg-amber-600 px-6 py-4 text-center">
+                    <p className="text-2xl font-bold text-white">Traditional Steam Cleaning</p>
+                    <p className="text-lg font-semibold text-amber-100">High-Moisture, Conventional Methods</p>
+                  </div>
+                  <ul className="space-y-4 p-6 text-gray-700">
+                    {[
+                      "Uses high pressure and excessive water",
+                      "Dries in 12-24+ hours",
+                      "Can lead to carpet shrinkage and wear",
+                      "Higher risk of mold and mildew",
+                      "May contain harsh chemicals and residues",
+                      "Longer drying time disrupts your day",
+                    ].map((item) => (
+                      <li key={item} className="flex items-start gap-3">
+                        <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-600 text-white">
+                          <Check className="h-3.5 w-3.5" />
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="pointer-events-none absolute inset-0 hidden items-center justify-center lg:flex">
+                  <div className="rounded-full border-4 border-white bg-purple-900 px-5 py-4 text-3xl font-bold text-white shadow-lg">
+                    VS.
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -511,7 +612,7 @@ export default function Page() {
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="relative">
                 <Image
-                  src="/vecteezy_cleaning-supplies-in-a-white-bucket_47942519.jpg"
+                  src="/1a4b07c0-2828-46a3-b082-e4c5e0bc9ded.png"
                   alt="Cleaning supplies in a bucket"
                   width={1200}
                   height={1600}
@@ -526,7 +627,7 @@ export default function Page() {
               </div>
               <div className="space-y-6 rounded-2xl bg-white/90 p-6 md:p-8 border border-purple-100 shadow-sm backdrop-blur-sm">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <Badge className="bg-amber-100 text-amber-900">About Us</Badge>
+                  <Badge className="border-0 bg-gradient-to-r from-[#B8860B] via-[#D4AF37] to-[#C9971A] text-black">About Us</Badge>
                   <span className="text-xs font-medium text-purple-700 bg-purple-50 px-3 py-1 rounded-full">
                     Trusted in Saskatoon
                   </span>
@@ -605,7 +706,7 @@ export default function Page() {
         <section className="py-16 md:py-24 bg-purple-50">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto mb-12">
-              <Badge className="bg-amber-100 text-amber-900 mb-4">Testimonials</Badge>
+              <Badge className="border-0 bg-gradient-to-r from-[#B8860B] via-[#D4AF37] to-[#C9971A] text-black mb-4">Testimonials</Badge>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 What Our Customers Say
               </h2>
@@ -620,7 +721,7 @@ export default function Page() {
                   <CardHeader>
                     <div className="flex items-center gap-1 mb-2">
                       {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        <Star key={i} className="w-4 h-4 fill-[#D4AF37] text-[#D4AF37]" />
                       ))}
                     </div>
                     <CardDescription className="text-gray-600 italic">
@@ -651,7 +752,7 @@ export default function Page() {
         <section id="pricing" className="py-16 md:py-24">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto mb-12">
-              <Badge className="bg-amber-100 text-amber-900 mb-4">Pricing Plans</Badge>
+              <Badge className="border-0 bg-gradient-to-r from-[#B8860B] via-[#D4AF37] to-[#C9971A] text-black mb-4">Pricing Plans</Badge>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 Flexible Plans for Every Need
               </h2>
@@ -716,7 +817,7 @@ export default function Page() {
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 gap-12">
               <div>
-                <Badge className="bg-amber-100 text-amber-900 mb-4">Contact Us</Badge>
+                <Badge className="border-0 bg-gradient-to-r from-[#B8860B] via-[#D4AF37] to-[#C9971A] text-black mb-4">Contact Us</Badge>
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                   Get in Touch
                 </h2>

@@ -62,7 +62,7 @@ export default function ServicesPage() {
               </CardContent>
               <CardFooter className="mt-auto">
                 <Button asChild className="w-full bg-purple-700 hover:bg-purple-800">
-                  <Link href="/book">Book {service.name}</Link>
+                  <Link href={`/services/${service.id}`}>View {service.name}</Link>
                 </Button>
               </CardFooter>
             </Card>
