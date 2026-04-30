@@ -345,7 +345,7 @@ export default function Page() {
         {/* Hero Section */}
         <section id="home" className="relative overflow-hidden">
           <Image
-            src="/WEBSITE HOME PAGE BANNER IMAGE OPTION.png"
+            src="/WhatsApp Image 2026-04-30 at 6.32.png"
             alt=""
             fill
             priority
