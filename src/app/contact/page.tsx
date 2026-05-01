@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,16 +49,20 @@ export default function ContactPage() {
             Questions, quotes, or custom service requests — we are here to help.
           </p>
 
-          <div className="space-y-5 text-sm">
-            <div className="flex items-start gap-3">
-              <MapPin className="mt-0.5 h-5 w-5 text-amber-700" />
+          <div className="space-y-6 text-sm">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-purple-900 shadow-sm ring-1 ring-purple-950/35">
+                <MapPin className="h-5 w-5 text-white" strokeWidth={2} />
+              </div>
               <div>
                 <p className="font-medium">Address</p>
                 <p className="text-muted-foreground">1731 Ave D N, Saskatoon, SK, Canada S7L1R1</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <Phone className="mt-0.5 h-5 w-5 text-amber-700" />
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-purple-900 shadow-sm ring-1 ring-purple-950/35">
+                <Phone className="h-5 w-5 text-white" strokeWidth={2} />
+              </div>
               <div>
                 <p className="font-medium">Phone</p>
                 <a href="tel:639-471-3393" className="text-amber-700 hover:underline">
@@ -66,8 +70,10 @@ export default function ContactPage() {
                 </a>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <Mail className="mt-0.5 h-5 w-5 text-amber-700" />
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-purple-900 shadow-sm ring-1 ring-purple-950/35">
+                <Mail className="h-5 w-5 text-white" strokeWidth={2} />
+              </div>
               <div>
                 <p className="font-medium">Email</p>
                 <a
@@ -76,6 +82,16 @@ export default function ContactPage() {
                 >
                   info@yxepristinepropertyservices.ca
                 </a>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-purple-900 shadow-sm ring-1 ring-purple-950/35">
+                <Clock className="h-5 w-5 text-white" strokeWidth={2} />
+              </div>
+              <div>
+                <p className="font-medium">Working hours</p>
+                <p className="text-muted-foreground">Monday–Friday · 8:00 AM–5:00 PM</p>
+                <p className="text-muted-foreground">Saturday–Sunday · Closed</p>
               </div>
             </div>
           </div>

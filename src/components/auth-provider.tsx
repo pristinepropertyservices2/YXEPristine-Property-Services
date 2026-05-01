@@ -1,12 +1,14 @@
 'use client';
 
+import type { Session } from 'next-auth';
 import { SessionProvider } from 'next-auth/react';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
+  session: Session | null;
 }
 
-export function AuthProvider({ children }: Props) {
-  return <SessionProvider>{children}</SessionProvider>;
+export function AuthProvider({ children, session }: Props) {
+  return <SessionProvider session={session ?? undefined}>{children}</SessionProvider>;
 }

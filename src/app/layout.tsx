@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { getServerSession } from "next-auth/next";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/components/auth-provider";
 import { SiteNavbar } from "@/components/site-navbar";
 import { ScrollToTopButton } from "@/components/scroll-to-top-button";
+import { Toaster } from "@/components/ui/toaster";
+import { authOptions } from "@/lib/auth-options";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,18 +42,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="scroll-pt-20 md:scroll-pt-24">
       <body
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
-        <AuthProvider>
+        <AuthProvider session={session}>
           <SiteNavbar />
           {children}
           <ScrollToTopButton />

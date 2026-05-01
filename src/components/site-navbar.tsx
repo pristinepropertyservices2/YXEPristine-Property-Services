@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
@@ -27,9 +27,15 @@ const serviceItems = [
   { label: "Post-Construction Cleaning", href: "/services/postconstruction" },
 ];
 
+const SCROLL_THRESHOLD_PX = 16;
+
 export function SiteNavbar() {
-  const { status } = useSession();
+  const { data: session, status } = useSession();
+  const isLoggedIn =
+    status === "authenticated" &&
+    !!(session?.user?.id || session?.user?.email);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
 
   const isActiveRoute = (href: string) => {
@@ -38,17 +44,30 @@ export function SiteNavbar() {
   };
 
   const isHome = pathname === "/";
+  const heroNav = isHome && !scrolled;
+
+  useEffect(() => {
+    const update = () => setScrolled(window.scrollY > SCROLL_THRESHOLD_PX);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
+
+  useEffect(() => {
+    setScrolled(window.scrollY > SCROLL_THRESHOLD_PX);
+  }, [pathname]);
 
   return (
-    <header
-      className={cn(
-        "z-50 border-b",
-        isHome
-          ? "absolute left-0 right-0 top-0 border-transparent bg-transparent backdrop-blur-none"
-          : "sticky top-0 border-border bg-white/75 backdrop-blur-sm"
-      )}
-    >
-      <nav className="container mx-auto px-4 py-3">
+    <>
+      <header
+        className={cn(
+          "fixed left-0 right-0 top-0 z-50 w-full border-b transition-[background-color,backdrop-filter,border-color] duration-300",
+          heroNav
+            ? "border-transparent bg-transparent backdrop-blur-none"
+            : "border-border bg-white/95 backdrop-blur-sm"
+        )}
+      >
+        <nav className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
             <img
@@ -66,7 +85,7 @@ export function SiteNavbar() {
                     href={item.href}
                     className={cn(
                       "text-base transition-colors",
-                      isHome
+                      heroNav
                         ? "font-bold text-white hover:text-white/85"
                         : isActiveRoute(item.href)
                           ? "font-medium text-purple-700"
@@ -93,7 +112,7 @@ export function SiteNavbar() {
                   href={item.href}
                   className={cn(
                     "text-base transition-colors",
-                    isHome
+                    heroNav
                       ? "font-bold text-white hover:text-white/85"
                       : isActiveRoute(item.href)
                         ? "font-medium text-purple-700"
@@ -106,20 +125,34 @@ export function SiteNavbar() {
             ))}
           </div>
 
-          <div className="hidden items-center gap-3 md:flex">
-            {status === "authenticated" ? (
+          <div className="hidden items-center gap-2 md:flex md:gap-3">
+            {isLoggedIn ? (
               <Button size="sm" className="bg-purple-700 hover:bg-purple-800" asChild>
                 <Link href="/dashboard">Dashboard</Link>
               </Button>
             ) : (
-              <Button size="sm" className="bg-purple-700 hover:bg-purple-800" asChild>
-                <Link href="/auth/signin">Sign In</Link>
-              </Button>
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className={cn(
+                    heroNav
+                      ? "border-white bg-transparent text-white hover:bg-white/15 hover:text-white"
+                      : "border-purple-700 text-purple-700 hover:bg-purple-50 hover:text-purple-800"
+                  )}
+                  asChild
+                >
+                  <Link href="/auth/signin">Login</Link>
+                </Button>
+                <Button size="sm" className="bg-purple-700 hover:bg-purple-800" asChild>
+                  <Link href="/auth/signin?mode=signup">Sign Up</Link>
+                </Button>
+              </>
             )}
           </div>
 
           <button
-            className="p-2 md:hidden"
+            className={cn("p-2 md:hidden text-foreground", heroNav && "text-white")}
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="Toggle menu"
           >
@@ -127,7 +160,13 @@ export function SiteNavbar() {
           </button>
         </div>
 
-        <div className={cn("mt-4 border-t pt-4 md:hidden", !mobileOpen && "hidden")}>
+        <div
+          className={cn(
+            "mt-4 border-t pt-4 md:hidden",
+            heroNav ? "border-white/20" : "border-gray-200",
+            !mobileOpen && "hidden"
+          )}
+        >
           <div className="flex flex-col gap-3">
             {navItems.map((item) => (
               <Link
@@ -136,7 +175,7 @@ export function SiteNavbar() {
                 onClick={() => setMobileOpen(false)}
                 className={cn(
                   "text-left text-base transition-colors",
-                  isHome
+                  heroNav
                     ? "font-bold text-white hover:text-white/85"
                     : isActiveRoute(item.href)
                       ? "font-medium text-purple-700"
@@ -146,25 +185,48 @@ export function SiteNavbar() {
                 {item.label}
               </Link>
             ))}
-            <div className="flex flex-col gap-2 border-t pt-4">
-              {status === "authenticated" ? (
+            <div
+              className={cn(
+                "flex flex-col gap-2 border-t pt-4",
+                heroNav ? "border-white/20" : "border-gray-200"
+              )}
+            >
+              {isLoggedIn ? (
                 <Button className="w-full bg-purple-700 hover:bg-purple-800" asChild>
                   <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
                     Dashboard
                   </Link>
                 </Button>
               ) : (
-                <Button className="w-full bg-purple-700 hover:bg-purple-800" asChild>
-                  <Link href="/auth/signin" onClick={() => setMobileOpen(false)}>
-                    Sign In
-                  </Link>
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full",
+                      heroNav
+                        ? "border-white bg-transparent text-white hover:bg-white/15 hover:text-white"
+                        : "border-purple-700 text-purple-700 hover:bg-purple-50"
+                    )}
+                    asChild
+                  >
+                    <Link href="/auth/signin" onClick={() => setMobileOpen(false)}>
+                      Login
+                    </Link>
+                  </Button>
+                  <Button className="w-full bg-purple-700 hover:bg-purple-800" asChild>
+                    <Link href="/auth/signin?mode=signup" onClick={() => setMobileOpen(false)}>
+                      Sign Up
+                    </Link>
+                  </Button>
+                </>
               )}
             </div>
           </div>
         </div>
-      </nav>
-    </header>
+        </nav>
+      </header>
+      {!isHome ? <div className="h-[4.5rem] shrink-0" aria-hidden /> : null}
+    </>
   );
 }
 

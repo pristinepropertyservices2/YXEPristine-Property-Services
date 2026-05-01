@@ -59,6 +59,12 @@ function SignInContent() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
+
+  useEffect(() => {
+    const mode = searchParams.get("mode");
+    if (mode === "signup") setIsSignup(true);
+    else if (mode === "login") setIsSignup(false);
+  }, [searchParams]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',

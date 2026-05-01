@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -160,6 +160,8 @@ const timeSlots = [
   '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'
 ];
 
+const HERO_LOCATION = 'Saskatoon';
+
 export default function Page() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -170,7 +172,54 @@ export default function Page() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState('09:00');
   const [bookingStep, setBookingStep] = useState(1);
-  
+  const [typedLocation, setTypedLocation] = useState('');
+  const [typingCursorVisible, setTypingCursorVisible] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    let sleepHandle: number | undefined;
+    const word = HERO_LOCATION;
+    const typeMs = 95;
+    const pauseAtFullMs = 2200;
+    const eraseMs = 55;
+    const pauseEmptyMs = 600;
+
+    const sleep = (ms: number) =>
+      new Promise<void>((resolve) => {
+        sleepHandle = window.setTimeout(() => {
+          sleepHandle = undefined;
+          resolve();
+        }, ms);
+      });
+
+    void (async () => {
+      setTypingCursorVisible(true);
+      while (!cancelled) {
+        for (let i = 1; i <= word.length; i++) {
+          if (cancelled) return;
+          setTypedLocation(word.slice(0, i));
+          await sleep(typeMs);
+        }
+        if (cancelled) return;
+        await sleep(pauseAtFullMs);
+        if (cancelled) return;
+        for (let j = word.length - 1; j >= 0; j--) {
+          if (cancelled) return;
+          setTypedLocation(word.slice(0, j));
+          await sleep(eraseMs);
+        }
+        if (cancelled) return;
+        setTypedLocation("");
+        await sleep(pauseEmptyMs);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (sleepHandle !== undefined) window.clearTimeout(sleepHandle);
+    };
+  }, []);
+
   // Form states
   const [bookingForm, setBookingForm] = useState({
     address: '',
@@ -345,23 +394,41 @@ export default function Page() {
         {/* Hero Section */}
         <section id="home" className="relative overflow-hidden">
           <Image
-            src="/WhatsApp Image 2026-04-30 at 6.32.png"
+            src="/498e6ba5-7e29-43f7-816c-dd5035d604d3.png"
             alt=""
             fill
             priority
             sizes="100vw"
-            className="absolute inset-0 object-cover"
+            className="absolute inset-0 z-0 object-cover"
           />
-          <div className="absolute inset-0 bg-black/40" />
+          <div
+            className="pointer-events-none absolute inset-0 z-[1]"
+            aria-hidden
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.59)" }}
+          />
           <div className="container relative z-10 mx-auto px-4 py-16 md:py-24">
             <div className="max-w-4xl md:max-w-3xl">
               <div className="space-y-6">
                 <Badge className="border-0 bg-gradient-to-r from-[#B8860B] via-[#D4AF37] to-[#C9971A] text-black hover:from-[#A57908] hover:via-[#CFA52A] hover:to-[#B8860B]">
                   Eco-Friendly Cleaning Solutions
                 </Badge>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-                  Professional Cleaning Services in{' '}
-                  <span className="text-amber-600">Saskatoon</span>
+                <h1
+                  className="text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl"
+                  aria-label={`Professional Cleaning Services in ${HERO_LOCATION}`}
+                >
+                  <span className="block">Professional Cleaning</span>
+                  <span className="mt-1 block max-w-full overflow-x-auto whitespace-nowrap sm:mt-0.5 md:mt-1 [-ms-overflow-style:none] [scrollbar-width:none]">
+                    Services in{" "}
+                    <span className="inline-flex min-w-[10.75ch] items-baseline whitespace-nowrap font-bold text-amber-600 align-baseline">
+                      <span aria-hidden>{typedLocation}</span>
+                      {typingCursorVisible && (
+                        <span
+                          aria-hidden
+                          className="ml-1 inline-block h-[0.9em] w-0.5 shrink-0 translate-y-0.5 align-bottom bg-amber-500 animate-pulse md:ml-1.5"
+                        />
+                      )}
+                    </span>
+                  </span>
                 </h1>
                 <p className="text-lg text-white/90 leading-relaxed">
                   YXE Pristine Property Services provides professional, eco-friendly cleaning solutions 
@@ -391,7 +458,7 @@ export default function Page() {
         </section>
 
         {/* Features Strip */}
-        <section className="mt-8 bg-purple-900 py-8">
+        <section className="bg-purple-900 pt-8 pb-6 md:pb-7">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-white">
               <div className="flex items-center gap-3">
@@ -427,60 +494,96 @@ export default function Page() {
         </section>
 
         {/* Services Section */}
-        <section id="services" className="py-16 md:py-24 bg-gray-50">
+        <section id="services" className="bg-gray-50 pt-8 pb-16 md:pt-10 md:pb-24">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto mb-12">
-              <Badge className="border-0 bg-gradient-to-r from-[#B8860B] via-[#D4AF37] to-[#C9971A] text-black mb-4">Our Services</Badge>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <div className="mx-auto mb-12 max-w-3xl text-center md:mb-16">
+              <Badge className="mb-5 border border-amber-200/80 bg-gradient-to-r from-[#B8860B]/15 via-[#D4AF37]/20 to-[#C9971A]/15 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-900">
+                Our Services
+              </Badge>
+              <h2 className="text-3xl font-semibold tracking-tight text-neutral-900 md:text-[2.375rem] md:leading-snug lg:text-[2.75rem]">
                 Professional Cleaning Solutions
               </h2>
-              <p className="text-gray-600">
-                We offer a wide range of professional cleaning services using eco-friendly products 
-                that are tough on dirt but safe for your family, pets, and the environment.
+              <p className="mx-auto mt-4 max-w-2xl text-pretty text-base leading-relaxed text-neutral-600 md:text-lg">
+                Boutique-quality care across every surface — eco-conscious products,
+                meticulous technicians, and clear, upfront pricing for your home or business.
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid gap-6 sm:grid-cols-2 sm:gap-7 lg:grid-cols-4 lg:gap-6 xl:gap-8">
               {services.map((service) => (
-                <Card key={service.id} className="group hover:shadow-lg transition-all duration-300 overflow-hidden">
-                  <div className="aspect-square relative overflow-hidden bg-purple-50">
+                <Card
+                  key={service.id}
+                  className={cn(
+                    "group relative flex flex-col gap-0 overflow-hidden rounded-[1.375rem] border border-neutral-200/90 bg-white p-0 shadow-none",
+                    "ring-1 ring-neutral-950/[0.04]",
+                    "transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                    "hover:-translate-y-2 hover:border-purple-200/70 hover:shadow-[0_28px_60px_-12px_rgba(62,31,107,0.22)] hover:ring-purple-950/[0.08]"
+                  )}
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden bg-neutral-100">
                     <Image
                       src={service.image}
                       alt={service.name}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="object-cover transition-[transform,filter] duration-700 ease-out group-hover:scale-[1.045] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                     />
-                    <div className="absolute top-3 right-3">
-                      <Badge className="bg-white text-amber-800">
-                        ${service.price}+
-                      </Badge>
+                    <div
+                      aria-hidden
+                      className="absolute inset-0 bg-gradient-to-t from-neutral-950/55 via-neutral-950/10 to-transparent opacity-95 transition-opacity duration-500 group-hover:from-neutral-950/65"
+                    />
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
+                    <div className="absolute right-4 top-4 flex flex-col items-end gap-1">
+                      <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-900 shadow-sm backdrop-blur-md">
+                        <span className="h-1 w-1 rounded-full bg-amber-500" />
+                        From ${service.price}
+                      </span>
+                      <span className="rounded-full bg-black/35 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-widest text-white/90 backdrop-blur-sm">
+                        {service.duration} min avg
+                      </span>
                     </div>
                   </div>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">{service.name}</CardTitle>
-                    <CardDescription className="text-sm line-clamp-2">
+
+                  <div className="flex flex-1 flex-col px-6 pb-5 pt-6">
+                    <CardTitle className="text-xl font-semibold leading-snug tracking-tight text-neutral-900 md:text-[1.35rem]">
+                      {service.name}
+                    </CardTitle>
+                    <CardDescription className="mt-2.5 line-clamp-2 text-sm leading-relaxed text-neutral-600">
                       {service.description}
                     </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pb-2">
-                    <div className="flex flex-wrap gap-1">
+
+                    <ul className="mt-5 space-y-2.5 border-t border-neutral-100 pt-5">
                       {service.features.slice(0, 2).map((feature, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">
-                          {feature}
-                        </Badge>
+                        <li
+                          key={`${service.id}-${idx}`}
+                          className="flex gap-2.5 text-[13px] leading-snug text-neutral-600"
+                        >
+                          <span className="mt-1.5 flex h-1 w-1 shrink-0 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 ring-[3px] ring-amber-500/25" />
+                          <span>{feature}</span>
+                        </li>
                       ))}
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button 
-                      className="w-full bg-purple-700 hover:bg-purple-800"
-                      onClick={() => handleBookService(service)}
-                    >
-                      Book Now
-                      <ChevronRight className="ml-1 w-4 h-4" />
-                    </Button>
-                  </CardFooter>
+                    </ul>
+
+                    <CardFooter className="mt-auto flex w-full flex-col gap-3 border-0 bg-transparent px-0 pt-7 pb-0">
+                      <Button
+                        size="lg"
+                        className="group/btn relative w-full overflow-hidden rounded-2xl border-0 bg-gradient-to-r from-[#3a1f58] via-[#5E2C8A] to-[#4a2570] px-6 py-6 text-sm font-semibold tracking-wide text-white shadow-[0_12px_34px_-8px_rgba(62,31,107,0.55)] transition-[transform,box-shadow,filter] duration-300 hover:shadow-[0_18px_44px_-8px_rgba(62,31,107,0.58)] hover:brightness-[1.06] active:scale-[0.99] motion-reduce:transition-none"
+                        onClick={() => handleBookService(service)}
+                      >
+                        <span className="relative z-10 flex w-full items-center justify-center gap-2">
+                          Book this service
+                          <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-0.5" />
+                        </span>
+                      </Button>
+                      <Link
+                        href={`/services/${service.id}`}
+                        prefetch={false}
+                        className="text-center text-xs font-medium tracking-wide text-purple-950/65 underline-offset-4 transition-colors hover:text-purple-900 hover:underline"
+                      >
+                        View pricing &amp; details
+                      </Link>
+                    </CardFooter>
+                  </div>
                 </Card>
               ))}
             </div>
@@ -603,6 +706,69 @@ export default function Page() {
                 </div>
               </div>
             </div>
+
+            <div className="mx-auto mt-8 max-w-8xl overflow-hidden rounded-3xl border border-purple-200 bg-gradient-to-r from-white via-purple-50/40 to-purple-100/70 shadow-sm">
+              <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
+                <div className="p-6 md:p-10">
+                  <p className="text-3xl font-semibold leading-tight text-amber-700 md:text-4xl">
+                    Our Technicians are
+                  </p>
+                  <h3 className="mt-2 text-4xl font-bold leading-tight text-purple-900 md:text-6xl">
+                    Trusted and Skilled
+                    <br />
+                    Cleaning Experts
+                  </h3>
+                  <p className="mt-6 max-w-2xl text-base leading-relaxed text-gray-700 md:text-lg">
+                    YXE Pristine Property Services are not your typical carpet cleaners.
+                    Every tech is trained to identify and treat carpets, upholstery, tile,
+                    hardwood, and more using safe, effective methods.
+                  </p>
+                  <p className="mt-4 max-w-2xl text-base leading-relaxed text-gray-700 md:text-lg">
+                    When our team arrives at your home or business, you can expect friendly
+                    service, professional care, and results you can see.
+                  </p>
+
+                  <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {[
+                      { icon: Shield, label: "Trusted Pros" },
+                      { icon: User, label: "Expert Team" },
+                      { icon: Sparkles, label: "Quality Results" },
+                      { icon: Leaf, label: "Better For Home" },
+                    ].map((item) => (
+                      <div
+                        key={item.label}
+                        className="rounded-xl border border-purple-100 bg-white px-3 py-4 text-center"
+                      >
+                        <item.icon className="mx-auto h-8 w-8 text-purple-800" />
+                        <p className="mt-2 text-sm font-semibold text-purple-900">
+                          {item.label}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center bg-gradient-to-br from-purple-900 via-purple-800 to-purple-700 p-8 md:p-10">
+                  <div className="w-full max-w-sm rounded-2xl border border-white/20 bg-white/10 p-6 text-center text-white backdrop-blur-sm">
+                    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-300">
+                      YXE Pristine
+                    </p>
+                    <p className="mt-2 text-3xl font-bold md:text-4xl">Clean. Protect. Maintain.</p>
+                    <p className="mt-4 text-sm text-white/90 md:text-base">
+                      Professional residential and commercial cleaning services across
+                      Saskatoon and surrounding areas.
+                    </p>
+                    <div className="mt-6 rounded-xl bg-white px-4 py-3 text-purple-900">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                        Book A Service
+                      </p>
+                      <p className="text-lg font-bold md:text-xl">(306) 802-2227</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </section>
 
@@ -827,8 +993,8 @@ export default function Page() {
                 
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
-                      <MapPin className="w-5 h-5 text-amber-600" />
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-purple-900 shadow-sm ring-1 ring-purple-950/35">
+                      <MapPin className="h-5 w-5 text-white" strokeWidth={2} />
                     </div>
                     <div>
                       <p className="font-semibold">Address</p>
@@ -836,8 +1002,8 @@ export default function Page() {
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
-                      <Phone className="w-5 h-5 text-amber-600" />
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-purple-900 shadow-sm ring-1 ring-purple-950/35">
+                      <Phone className="h-5 w-5 text-white" strokeWidth={2} />
                     </div>
                     <div>
                       <p className="font-semibold">Phone</p>
@@ -845,8 +1011,8 @@ export default function Page() {
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
-                      <Mail className="w-5 h-5 text-amber-600" />
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-purple-900 shadow-sm ring-1 ring-purple-950/35">
+                      <Mail className="h-5 w-5 text-white" strokeWidth={2} />
                     </div>
                     <div>
                       <p className="font-semibold">Email</p>
@@ -856,8 +1022,8 @@ export default function Page() {
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
-                      <Clock className="w-5 h-5 text-amber-600" />
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-purple-900 shadow-sm ring-1 ring-purple-950/35">
+                      <Clock className="h-5 w-5 text-white" strokeWidth={2} />
                     </div>
                     <div>
                       <p className="font-semibold">Working Hours</p>
