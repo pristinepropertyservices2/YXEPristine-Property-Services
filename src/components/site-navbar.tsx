@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -30,10 +29,6 @@ const serviceItems = [
 const SCROLL_THRESHOLD_PX = 16;
 
 export function SiteNavbar() {
-  const { data: session, status } = useSession();
-  const isLoggedIn =
-    status === "authenticated" &&
-    !!(session?.user?.id || session?.user?.email);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
@@ -61,7 +56,7 @@ export function SiteNavbar() {
     <>
       <header
         className={cn(
-          "fixed left-0 right-0 top-0 z-50 w-full border-b transition-[background-color,backdrop-filter,border-color] duration-300",
+          "fixed left-0 right-0 top-0 z-[100] w-full border-b transition-[background-color,backdrop-filter,border-color] duration-300",
           heroNav
             ? "border-transparent bg-transparent backdrop-blur-none"
             : "border-border bg-white/95 backdrop-blur-sm"
@@ -126,29 +121,28 @@ export function SiteNavbar() {
           </div>
 
           <div className="hidden items-center gap-2 md:flex md:gap-3">
-            {isLoggedIn ? (
-              <Button size="sm" className="bg-purple-700 hover:bg-purple-800" asChild>
-                <Link href="/dashboard">Dashboard</Link>
-              </Button>
-            ) : (
-              <>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className={cn(
-                    heroNav
-                      ? "border-white bg-transparent text-white hover:bg-white/15 hover:text-white"
-                      : "border-purple-700 text-purple-700 hover:bg-purple-50 hover:text-purple-800"
-                  )}
-                  asChild
-                >
-                  <Link href="/auth/signin">Login</Link>
-                </Button>
-                <Button size="sm" className="bg-purple-700 hover:bg-purple-800" asChild>
-                  <Link href="/auth/signin?mode=signup">Sign Up</Link>
-                </Button>
-              </>
-            )}
+            <Link
+              href="/auth/signin"
+              prefetch
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                heroNav
+                  ? "border-white bg-transparent text-white hover:bg-white/15 hover:text-white"
+                  : "border-purple-700 text-purple-700 hover:bg-purple-50 hover:text-purple-800"
+              )}
+            >
+              Login
+            </Link>
+            <Link
+              href="/auth/signin?mode=signup"
+              prefetch
+              className={cn(
+                buttonVariants({ size: "sm" }),
+                "bg-purple-700 text-white hover:bg-purple-800"
+              )}
+            >
+              Sign Up
+            </Link>
           </div>
 
           <button
@@ -191,35 +185,33 @@ export function SiteNavbar() {
                 heroNav ? "border-white/20" : "border-gray-200"
               )}
             >
-              {isLoggedIn ? (
-                <Button className="w-full bg-purple-700 hover:bg-purple-800" asChild>
-                  <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
-                    Dashboard
-                  </Link>
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full",
-                      heroNav
-                        ? "border-white bg-transparent text-white hover:bg-white/15 hover:text-white"
-                        : "border-purple-700 text-purple-700 hover:bg-purple-50"
-                    )}
-                    asChild
-                  >
-                    <Link href="/auth/signin" onClick={() => setMobileOpen(false)}>
-                      Login
-                    </Link>
-                  </Button>
-                  <Button className="w-full bg-purple-700 hover:bg-purple-800" asChild>
-                    <Link href="/auth/signin?mode=signup" onClick={() => setMobileOpen(false)}>
-                      Sign Up
-                    </Link>
-                  </Button>
-                </>
-              )}
+              <>
+                <Link
+                  href="/auth/signin"
+                  prefetch
+                  onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "w-full justify-center text-center",
+                    heroNav
+                      ? "border-white bg-transparent text-white hover:bg-white/15 hover:text-white"
+                      : "border-purple-700 text-purple-700 hover:bg-purple-50"
+                  )}
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/auth/signin?mode=signup"
+                  prefetch
+                  onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    buttonVariants(),
+                    "w-full justify-center bg-purple-700 text-white hover:bg-purple-800"
+                  )}
+                >
+                  Sign Up
+                </Link>
+              </>
             </div>
           </div>
         </div>
