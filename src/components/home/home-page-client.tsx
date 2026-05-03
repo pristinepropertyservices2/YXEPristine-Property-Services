@@ -320,20 +320,6 @@ export function HomePageClient() {
         <TestimonialsSection testimonials={homeTestimonials} />
         <PricingPlansSection plans={homePlans} onSelectPlan={handleSelectPlan} />
 
-        <CTASection
-          id="cta-before-contact"
-          variant="dark"
-          title="Locks in freshness before the season fills up"
-          subtitle="Limited slots remaining this month tell us what you need and we&apos;ll reserve your preferred window."
-        >
-          <CTAButton href="/contact" variant="accent" className="border-0">
-            Get instant quote
-          </CTAButton>
-          <CTAButton href={HOME_PHONE_TEL} variant="ghostLight" className="border-amber-300/70 bg-transparent">
-            Call the office
-          </CTAButton>
-        </CTASection>
-
         <ContactFormSection
           contactForm={contactForm}
           setContactForm={setContactForm}

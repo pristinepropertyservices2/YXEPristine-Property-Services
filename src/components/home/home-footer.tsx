@@ -12,7 +12,15 @@ export function HomeFooter() {
           <div>
             <div className="mb-4 flex items-center gap-2">
               <div className="rounded-lg bg-white p-2">
-                <Image src="/images/logo.png" alt="YXE Pristine Property Services logo" width={160} height={48} className="h-12 w-auto" />
+                  <Image
+                    src="/images/logo.png"
+                    alt="YXE Pristine Property Services logo"
+                    width={2638}
+                    height={1089}
+                    className="h-12 w-auto"
+                    sizes="160px"
+                    quality={90}
+                  />
               </div>
             </div>
             <p className="mb-4 text-sm text-gray-400">

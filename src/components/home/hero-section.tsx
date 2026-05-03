@@ -15,25 +15,27 @@ export function HeroSection({ typedLocation, typingCursorVisible }: HeroSectionP
   return (
     <section
       id="home"
-      className="relative isolate min-h-[min(88vh,46rem)] overflow-hidden pb-14 pt-24 sm:min-h-[min(90vh,52rem)] sm:pb-16 sm:pt-28 md:min-h-[min(85vh,44rem)] md:pb-20 md:pt-36 lg:pb-24 lg:pt-40"
+      className="relative isolate min-h-[min(88vh,46rem)] pb-14 pt-24 sm:min-h-[min(90vh,52rem)] sm:pb-16 sm:pt-28 md:min-h-[min(85vh,44rem)] md:pb-20 md:pt-36 lg:pb-24 lg:pt-40"
     >
-      <Image
-        src="/498e6ba5-7e29-43f7-816c-dd5035d604d3.png"
-        alt="Professional cleaner vacuuming carpet in a bright modern home"
-        fill
-        priority
-        sizes="100vw"
-        decoding="async"
-        className="absolute inset-0 z-0 object-cover object-[center_30%]"
-      />
+      <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden>
+        <Image
+          src="/498e6ba5-7e29-43f7-816c-dd5035d604d3.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          decoding="async"
+          className="object-cover object-[center_30%]"
+        />
+      </div>
       <div
         className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/45 via-black/50 to-neutral-950/75"
         aria-hidden
       />
       <div className="pointer-events-none absolute inset-0 z-[1] shadow-[inset_0_-80px_60px_-40px_rgb(255_255_255/0.04)]" aria-hidden />
 
-      <div className="container relative z-10 mx-auto px-4">
-        <div className="max-w-xl md:max-w-2xl lg:max-w-3xl">
+      <div className="container relative z-10 mx-auto min-w-0 px-4">
+        <div className="max-w-xl min-w-0 md:max-w-2xl lg:max-w-3xl">
           <Badge className="mb-4 border border-amber-300/35 bg-gradient-to-r from-[#E8CA6A] via-[#D4AF37] to-[#C9971A] px-4 py-1.5 text-xs font-semibold text-neutral-900 shadow-sm backdrop-blur-sm sm:mb-5">
             Insured · Eco-friendly · Family-owned · Saskatoon-based
           </Badge>
@@ -45,9 +47,9 @@ export function HeroSection({ typedLocation, typingCursorVisible }: HeroSectionP
             <span className="block text-white">
               Cleaner, healthier surfaces without harsh chemicals.
             </span>
-            <span className="mt-2 block max-w-full overflow-x-auto whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] sm:mt-2.5">
+            <span className="mt-2 block max-w-full sm:mt-2.5 sm:overflow-x-auto sm:whitespace-nowrap sm:[-ms-overflow-style:none] sm:[scrollbar-width:none]">
               <span className="text-white/95">Serving </span>
-              <span className="inline-flex min-w-[10.75ch] items-baseline whitespace-nowrap font-bold text-amber-400 drop-shadow-sm">
+              <span className="inline-flex min-w-[8.5ch] items-baseline font-bold text-amber-400 drop-shadow-sm sm:min-w-[10.75ch] sm:whitespace-nowrap">
                 {typedLocation || "\u00A0"}
                 {typingCursorVisible ? (
                   <span

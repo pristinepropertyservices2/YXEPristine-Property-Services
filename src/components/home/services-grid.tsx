@@ -54,13 +54,10 @@ const ServiceCardItem = memo(function ServiceCardItem({ service, onBookService }
           className="absolute inset-0 bg-gradient-to-t from-neutral-950/55 via-neutral-950/10 to-transparent opacity-95 transition-opacity duration-500 group-hover:from-neutral-950/65"
         />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
-        <div className="absolute right-4 top-4 flex flex-col items-end gap-1">
+        <div className="absolute right-4 top-4">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-900 shadow-sm backdrop-blur-md">
             <span className="h-1 w-1 rounded-full bg-amber-500" />
             From ${service.price}
-          </span>
-          <span className="rounded-full bg-black/35 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-widest text-white/90 backdrop-blur-sm">
-            {service.duration} min avg
           </span>
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -58,17 +59,22 @@ export function SiteNavbar() {
         className={cn(
           "fixed left-0 right-0 top-0 z-[100] w-full border-b transition-[background-color,backdrop-filter,border-color] duration-300",
           heroNav
-            ? "border-transparent bg-transparent backdrop-blur-none"
+            ? "border-white/20 bg-black/22 backdrop-blur-md backdrop-brightness-125"
             : "border-border bg-white/95 backdrop-blur-sm"
         )}
       >
         <nav className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <img
+          <Link href="/" className="relative flex shrink-0 items-center gap-3 outline-offset-4">
+            <Image
               src="/images/logo.png"
               alt="YXE Pristine Property Services"
-              className="h-12 w-auto"
+              width={2638}
+              height={1089}
+              className="h-12 w-auto md:h-[3.5rem] lg:h-[3.75rem]"
+              priority
+              quality={96}
+              sizes="(max-width: 768px) 196px, 236px"
             />
           </Link>
 
@@ -217,7 +223,9 @@ export function SiteNavbar() {
         </div>
         </nav>
       </header>
-      {!isHome ? <div className="h-[4.5rem] shrink-0" aria-hidden /> : null}
+      {!isHome ? (
+        <div className="h-[4.5rem] shrink-0 md:h-[5rem] lg:h-[5.25rem]" aria-hidden />
+      ) : null}
     </>
   );
 }
