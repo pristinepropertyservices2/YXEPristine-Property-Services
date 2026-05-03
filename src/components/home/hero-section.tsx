@@ -6,6 +6,9 @@ import { CTAButton } from "@/components/home/cta-button";
 import { ArrowRight } from "lucide-react";
 import { Star } from "lucide-react";
 
+const HERO_BACKGROUND_PATH =
+  "/" + encodeURIComponent("NEW WEBSITE HOME PAGE IMAGE e.png");
+
 type HeroSectionProps = {
   typedLocation: string;
   typingCursorVisible: boolean;
@@ -19,13 +22,13 @@ export function HeroSection({ typedLocation, typingCursorVisible }: HeroSectionP
     >
       <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden>
         <Image
-          src="/498e6ba5-7e29-43f7-816c-dd5035d604d3.png"
+          src={HERO_BACKGROUND_PATH}
           alt=""
           fill
           priority
           sizes="100vw"
           decoding="async"
-          className="object-cover object-[center_30%]"
+          className="object-cover object-center"
         />
       </div>
       <div
