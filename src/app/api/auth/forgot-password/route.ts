@@ -1,25 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { generateResetToken } from '@/lib/tokens';
-import { sendPasswordResetEmail } from '@/lib/email';
+import { sendPasswordResetEmail, isSmtpConfigured } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { email } = body;
-
-    if (!email) {
+    if (!isSmtpConfigured()) {
+      console.warn('[forgot-password] SMTP not configured');
       return NextResponse.json(
-        { error: 'Email is required' },
-        { status: 400 }
+        {
+          error:
+            'Password reset email is not available: mail is not configured on the server. Contact your administrator.',
+        },
+        { status: 503 }
       );
     }
 
-    const user = await db.user.findUnique({
-      where: { email: email.toLowerCase() },
+    const body = await request.json();
+    const rawEmail = body?.email as string | undefined;
+    if (!rawEmail?.trim()) {
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+    }
+
+    const emailNorm = rawEmail.trim().toLowerCase();
+
+    const user = await db.user.findFirst({
+      where: { email: { equals: emailNorm, mode: 'insensitive' } },
     });
 
-    // Always return success to prevent email enumeration
     if (!user) {
       return NextResponse.json({
         success: true,
@@ -27,15 +35,12 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Delete any existing reset tokens
     await db.verificationToken.deleteMany({
       where: { userId: user.id, identifier: 'password_reset' },
     });
 
-    // Generate new reset token
     const { token, expires } = generateResetToken();
 
-    // Save token to database
     await db.verificationToken.create({
       data: {
         userId: user.id,
@@ -45,7 +50,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Update user with reset token info
     await db.user.update({
       where: { id: user.id },
       data: {
@@ -54,8 +58,25 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Send password reset email
-    await sendPasswordResetEmail(user.email, user.name || 'User', token);
+    const sent = await sendPasswordResetEmail(user.email, user.name || 'User', token);
+
+    if (!sent.success) {
+      await db.verificationToken.deleteMany({
+        where: { userId: user.id, identifier: 'password_reset' },
+      });
+      await db.user.update({
+        where: { id: user.id },
+        data: { resetPasswordToken: null, resetPasswordExpires: null },
+      });
+      console.error('[forgot-password] Email send failed:', sent.message);
+      return NextResponse.json(
+        {
+          error:
+            'Could not send the reset email. Check SMTP settings (host, user, app password) on the server.',
+        },
+        { status: 503 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

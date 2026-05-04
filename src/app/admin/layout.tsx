@@ -10,9 +10,17 @@ export default function AdminLayout({
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-background">
       <header className="sticky top-0 z-40 border-b bg-white/90 backdrop-blur">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          <Link href="/admin" className="font-semibold text-slate-800">
-            Admin
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/admin" className="font-semibold text-slate-800">
+              Admin
+            </Link>
+            <Link
+              href="/admin/account"
+              className="text-sm text-muted-foreground hover:text-slate-900"
+            >
+              Account
+            </Link>
+          </div>
           <DashboardNav showBookService={false} />
         </div>
       </header>

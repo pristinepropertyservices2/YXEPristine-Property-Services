@@ -7,6 +7,18 @@ interface EmailOptions {
   text?: string;
 }
 
+/** True when env has real SMTP credentials (same rules as auth signup). */
+export function isSmtpConfigured(): boolean {
+  const user = process.env.SMTP_USER || '';
+  const pass = process.env.SMTP_PASSWORD || '';
+  return (
+    user.length > 0 &&
+    pass.length > 0 &&
+    !user.includes('your-email') &&
+    !pass.includes('your-app-password')
+  );
+}
+
 // Create transporter
 function createTransporter() {
   return nodemailer.createTransport({
@@ -95,8 +107,8 @@ export async function sendPasswordResetEmail(
   name: string,
   token: string
 ): Promise<{ success: boolean; message: string }> {
-  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-  const resetUrl = `${baseUrl}/reset-password?token=${token}`;
+  const baseUrl = (process.env.NEXTAUTH_URL || 'http://localhost:3000').replace(/\/$/, '');
+  const resetUrl = `${baseUrl}/reset-password?token=${encodeURIComponent(token)}`;
 
   const html = `
     <!DOCTYPE html>

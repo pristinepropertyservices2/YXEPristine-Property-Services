@@ -325,7 +325,7 @@ function SignInContent() {
 
             {!isSignup && (
               <div className="flex justify-end">
-                <Link href="/reset-password" className="text-sm text-purple-700 hover:underline">
+                <Link href="/auth/forgot-password" className="text-sm text-purple-700 hover:underline">
                   Forgot password?
                 </Link>
               </div>
