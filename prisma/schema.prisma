@@ -73,7 +73,8 @@ model Account {
   id                String  @id @default(cuid())
   userId            String
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  providerType      String
+  /// NextAuth: "oauth" | "email" | "credentials" — must match @next-auth/prisma-adapter (not providerType)
+  type              String
   provider          String
   providerAccountId String
   refreshToken      String?
