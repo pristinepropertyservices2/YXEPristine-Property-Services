@@ -184,3 +184,115 @@ export async function sendWelcomeEmail(
     html,
   });
 }
+
+const DEFAULT_BOOKING_STAFF_EMAIL = 'pristinepropertyservices2@gmail.com';
+
+function smtpReady(): boolean {
+  const user = process.env.SMTP_USER || '';
+  const pass = process.env.SMTP_PASSWORD || '';
+  return (
+    user.length > 0 &&
+    pass.length > 0 &&
+    !user.includes('your-email') &&
+    !pass.includes('your-app-password')
+  );
+}
+
+/** Comma-separated env, or default inbox for new booking alerts. */
+export function getBookingStaffNotificationRecipients(): string {
+  const raw =
+    process.env.BOOKING_NOTIFICATION_EMAIL?.trim() || DEFAULT_BOOKING_STAFF_EMAIL;
+  return raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .join(', ');
+}
+
+export type BookingStaffEmailPayload = {
+  bookingId: string;
+  customerName: string | null;
+  customerEmail: string | null;
+  customerPhone: string | null;
+  serviceName: string;
+  date: Date;
+  time: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  notes: string | null;
+  totalPrice: number;
+  durationMinutes: number;
+  addOnsSummary: string | null;
+};
+
+/** Notify business inbox when a customer creates a booking (does not block booking on failure). */
+export async function sendBookingCreatedStaffEmail(
+  payload: BookingStaffEmailPayload
+): Promise<{ success: boolean; message: string }> {
+  const to = getBookingStaffNotificationRecipients();
+  if (!to) {
+    return { success: false, message: 'No booking notification recipients' };
+  }
+  if (!smtpReady()) {
+    console.warn(
+      '[email] Booking created but SMTP is not configured; staff notification skipped.'
+    );
+    return { success: false, message: 'SMTP not configured' };
+  }
+
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+  const when = payload.date.toLocaleString('en-CA', {
+    dateStyle: 'full',
+    timeZone: 'America/Regina',
+  });
+  const addOnsBlock = payload.addOnsSummary
+    ? `<p><strong>Add-ons:</strong> ${escapeHtml(payload.addOnsSummary)}</p>`
+    : '';
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8"><title>New booking</title></head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 640px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%); padding: 24px; border-radius: 10px 10px 0 0;">
+        <h1 style="color: white; margin: 0; font-size: 22px;">New customer booking</h1>
+      </div>
+      <div style="background: #f9fafb; padding: 24px; border-radius: 0 0 10px 10px; color: #1f2937;">
+        <p>A customer submitted a booking. Status is <strong>PENDING</strong> until payment is completed.</p>
+        <table style="width:100%; border-collapse: collapse; font-size: 14px;">
+          <tr><td style="padding:6px 0; color:#6b7280;">Booking ID</td><td style="padding:6px 0;"><strong>${escapeHtml(payload.bookingId)}</strong></td></tr>
+          <tr><td style="padding:6px 0; color:#6b7280;">Service</td><td style="padding:6px 0;">${escapeHtml(payload.serviceName)}</td></tr>
+          <tr><td style="padding:6px 0; color:#6b7280;">Date</td><td style="padding:6px 0;">${escapeHtml(when)}</td></tr>
+          <tr><td style="padding:6px 0; color:#6b7280;">Time</td><td style="padding:6px 0;">${escapeHtml(payload.time)}</td></tr>
+          <tr><td style="padding:6px 0; color:#6b7280;">Duration</td><td style="padding:6px 0;">${payload.durationMinutes} min</td></tr>
+          <tr><td style="padding:6px 0; color:#6b7280;">Total</td><td style="padding:6px 0;">$${Number(payload.totalPrice).toFixed(2)}</td></tr>
+          <tr><td style="padding:6px 0; color:#6b7280;">Customer</td><td style="padding:6px 0;">${escapeHtml(payload.customerName || '—')}</td></tr>
+          <tr><td style="padding:6px 0; color:#6b7280;">Email</td><td style="padding:6px 0;">${escapeHtml(payload.customerEmail || '—')}</td></tr>
+          <tr><td style="padding:6px 0; color:#6b7280;">Phone</td><td style="padding:6px 0;">${escapeHtml(payload.customerPhone || '—')}</td></tr>
+          <tr><td style="padding:6px 0; vertical-align: top; color:#6b7280;">Address</td><td style="padding:6px 0;">${escapeHtml(`${payload.address}, ${payload.city} ${payload.postalCode}`)}</td></tr>
+        </table>
+        ${payload.notes ? `<p><strong>Notes:</strong><br>${escapeHtml(payload.notes).replace(/\n/g, '<br>')}</p>` : ''}
+        ${addOnsBlock}
+        <p style="margin-top: 20px;">
+          <a href="${escapeHtml(`${baseUrl}/admin`)}" style="background:#7c3aed;color:white;padding:10px 20px;text-decoration:none;border-radius:6px;display:inline-block;">Open admin</a>
+        </p>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to,
+    subject: `New booking: ${payload.serviceName} — ${payload.customerName || payload.customerEmail || payload.bookingId}`,
+    html,
+  });
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}

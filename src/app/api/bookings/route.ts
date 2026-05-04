@@ -3,6 +3,20 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { db } from '@/lib/db';
 import { calculateBookingTotal, type AddOnLine } from '@/lib/booking-price';
+import { sendBookingCreatedStaffEmail } from '@/lib/email';
+
+function formatAddOnsSummary(addOnsJson: string | null): string | null {
+  if (!addOnsJson) return null;
+  try {
+    const arr = JSON.parse(addOnsJson) as { name?: string; price?: number }[];
+    if (!Array.isArray(arr) || arr.length === 0) return null;
+    return arr
+      .map((a) => `${a.name ?? 'Add-on'} ($${Number(a.price ?? 0).toFixed(2)})`)
+      .join(', ');
+  } catch {
+    return null;
+  }
+}
 
 const bookingInclude = {
   service: true,
@@ -129,6 +143,26 @@ export async function POST(request: NextRequest) {
       },
       include: bookingInclude,
     });
+
+    const notify = await sendBookingCreatedStaffEmail({
+      bookingId: booking.id,
+      customerName: booking.user.name,
+      customerEmail: booking.user.email,
+      customerPhone: booking.user.phone,
+      serviceName: booking.service.name,
+      date: booking.date,
+      time: booking.time,
+      address: booking.address,
+      city: booking.city,
+      postalCode: booking.postalCode,
+      notes: booking.notes,
+      totalPrice: booking.totalPrice,
+      durationMinutes: booking.durationMinutes,
+      addOnsSummary: formatAddOnsSummary(booking.addOns),
+    });
+    if (!notify.success) {
+      console.warn('[bookings] Staff notification email:', notify.message);
+    }
 
     return NextResponse.json({
       success: true,
