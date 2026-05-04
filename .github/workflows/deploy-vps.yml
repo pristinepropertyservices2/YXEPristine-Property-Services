@@ -36,7 +36,14 @@ jobs:
             if command -v fnm >/dev/null 2>&1; then eval "$(fnm env)"; fi
             command -v npm >/dev/null || { echo "ERROR: npm not found on VPS after loading shell profile. Install Node or add it to PATH."; exit 127; }
             cd /var/www/YXEPristine-Property-Services
-            git pull
+            # VPS .env is not in repo — preserve the server's secrets and avoid git merge conflicts on .env
+            BACKUP_ENV=""
+            if [ -f .env ]; then BACKUP_ENV="$(mktemp)" && cp .env "$BACKUP_ENV"; fi
+            git fetch origin main
+            git reset --hard origin/main
+            if [ -n "$BACKUP_ENV" ] && [ -f "$BACKUP_ENV" ]; then
+              cp "$BACKUP_ENV" .env && rm -f "$BACKUP_ENV"
+            fi
             npm install 
             npm run build
             pm2 restart nextjs-app
