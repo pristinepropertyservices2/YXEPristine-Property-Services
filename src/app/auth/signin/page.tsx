@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
+import { getAuthErrorMessage } from '@/lib/auth-error-messages';
 import { Loader2, Mail, Lock, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
@@ -81,14 +82,11 @@ function SignInContent() {
   useEffect(() => {
     if (!error) return;
 
-    let errorMessage = 'An error occurred during sign in';
-    if (error === 'OAuthAccountNotLinked') {
-      errorMessage = 'This email is already associated with another account';
-    } else if (error === 'AccessDenied') {
-      errorMessage = 'Access denied. Please verify your email first.';
-    }
-
-    toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
+    toast({
+      title: 'Sign-in error',
+      description: getAuthErrorMessage(error),
+      variant: 'destructive',
+    });
   }, [error]);
 
   const handleCredentialsSignIn = async (e: React.FormEvent) => {

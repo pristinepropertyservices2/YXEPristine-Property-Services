@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Mail, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { getAuthErrorMessage } from '@/lib/auth-error-messages';
 
 function AuthErrorContent() {
   const searchParams = useSearchParams();
@@ -19,12 +20,8 @@ function AuthErrorContent() {
         return 'The verification link has expired. Please request a new one.';
       case 'verification_failed':
         return 'Email verification failed. Please try again.';
-      case 'OAuthAccountNotLinked':
-        return 'This email is already associated with another account. Please sign in with the original method.';
-      case 'AccessDenied':
-        return 'Access denied. Please verify your email address first.';
       default:
-        return 'An error occurred during authentication. Please try again.';
+        return getAuthErrorMessage(error);
     }
   };
 

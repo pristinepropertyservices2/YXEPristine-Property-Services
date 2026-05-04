@@ -117,8 +117,9 @@ export const authOptions: NextAuthOptions = {
       // User + Account rows for OAuth are created by PrismaAdapter. Do not duplicate-create here
       // (that caused races and confusing state). We only normalize verification when needed.
       if (account?.provider === 'google' && user.email) {
-        const existingUser = await db.user.findFirst({
-          where: { email: { equals: user.email, mode: 'insensitive' } },
+        const emailKey = user.email.trim().toLowerCase();
+        const existingUser = await db.user.findUnique({
+          where: { email: emailKey },
         });
 
         if (existingUser && !existingUser.emailVerified) {
