@@ -3,8 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Loader2, Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -30,9 +31,12 @@ const serviceItems = [
 const SCROLL_THRESHOLD_PX = 16;
 
 export function SiteNavbar() {
+  const { data: session, status } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const isAuthenticated = status === "authenticated" && !!session?.user;
+  const isAdmin = session?.user?.role === "ADMIN";
 
   const isActiveRoute = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -127,28 +131,83 @@ export function SiteNavbar() {
           </div>
 
           <div className="hidden items-center gap-2 md:flex md:gap-3">
-            <Link
-              href="/auth/signin"
-              prefetch
-              className={cn(
-                buttonVariants({ variant: "outline", size: "sm" }),
-                heroNav
-                  ? "border-white bg-transparent text-white hover:bg-white/15 hover:text-white"
-                  : "border-purple-700 text-purple-700 hover:bg-purple-50 hover:text-purple-800"
-              )}
-            >
-              Login
-            </Link>
-            <Link
-              href="/auth/signin?mode=signup"
-              prefetch
-              className={cn(
-                buttonVariants({ size: "sm" }),
-                "bg-purple-700 text-white hover:bg-purple-800"
-              )}
-            >
-              Sign Up
-            </Link>
+            {status === "loading" ? (
+              <span
+                className={cn(
+                  "inline-flex h-9 w-9 items-center justify-center rounded-md",
+                  heroNav ? "text-white" : "text-purple-700"
+                )}
+                aria-label="Loading account"
+              >
+                <Loader2 className="h-5 w-5 animate-spin" />
+              </span>
+            ) : isAuthenticated ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  prefetch
+                  className={cn(
+                    buttonVariants({ size: "sm" }),
+                    heroNav
+                      ? "border border-white/40 bg-white/15 text-white hover:bg-white/25"
+                      : "bg-purple-700 text-white hover:bg-purple-800"
+                  )}
+                >
+                  Dashboard
+                </Link>
+                {isAdmin ? (
+                  <Link
+                    href="/admin"
+                    prefetch
+                    className={cn(
+                      buttonVariants({ variant: "outline", size: "sm" }),
+                      heroNav
+                        ? "border-white bg-transparent text-white hover:bg-white/15 hover:text-white"
+                        : "border-purple-700 text-purple-700 hover:bg-purple-50 hover:text-purple-800"
+                    )}
+                  >
+                    Admin
+                  </Link>
+                ) : null}
+                <button
+                  type="button"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    heroNav
+                      ? "border-white bg-transparent text-white hover:bg-white/15 hover:text-white"
+                      : "border-purple-700 text-purple-700 hover:bg-purple-50 hover:text-purple-800"
+                  )}
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/auth/signin"
+                  prefetch
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    heroNav
+                      ? "border-white bg-transparent text-white hover:bg-white/15 hover:text-white"
+                      : "border-purple-700 text-purple-700 hover:bg-purple-50 hover:text-purple-800"
+                  )}
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/auth/signin?mode=signup"
+                  prefetch
+                  className={cn(
+                    buttonVariants({ size: "sm" }),
+                    "bg-purple-700 text-white hover:bg-purple-800"
+                  )}
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
 
           <button
@@ -191,33 +250,93 @@ export function SiteNavbar() {
                 heroNav ? "border-white/20" : "border-gray-200"
               )}
             >
-              <>
-                <Link
-                  href="/auth/signin"
-                  prefetch
-                  onClick={() => setMobileOpen(false)}
+              {status === "loading" ? (
+                <span
                   className={cn(
-                    buttonVariants({ variant: "outline" }),
-                    "w-full justify-center text-center",
-                    heroNav
-                      ? "border-white bg-transparent text-white hover:bg-white/15 hover:text-white"
-                      : "border-purple-700 text-purple-700 hover:bg-purple-50"
+                    "flex h-11 items-center justify-center rounded-md",
+                    heroNav ? "text-white" : "text-purple-700"
                   )}
                 >
-                  Login
-                </Link>
-                <Link
-                  href="/auth/signin?mode=signup"
-                  prefetch
-                  onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    buttonVariants(),
-                    "w-full justify-center bg-purple-700 text-white hover:bg-purple-800"
-                  )}
-                >
-                  Sign Up
-                </Link>
-              </>
+                  <Loader2 className="h-6 w-6 animate-spin" aria-hidden />
+                </span>
+              ) : isAuthenticated ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    prefetch
+                    onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      buttonVariants(),
+                      "w-full justify-center text-center",
+                      heroNav
+                        ? "border border-white/40 bg-white/15 text-white hover:bg-white/25"
+                        : "bg-purple-700 text-white hover:bg-purple-800"
+                    )}
+                  >
+                    Dashboard
+                  </Link>
+                  {isAdmin ? (
+                    <Link
+                      href="/admin"
+                      prefetch
+                      onClick={() => setMobileOpen(false)}
+                      className={cn(
+                        buttonVariants({ variant: "outline" }),
+                        "w-full justify-center text-center",
+                        heroNav
+                          ? "border-white bg-transparent text-white hover:bg-white/15"
+                          : "border-purple-700 text-purple-700 hover:bg-purple-50"
+                      )}
+                    >
+                      Admin
+                    </Link>
+                  ) : null}
+                  <button
+                    type="button"
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "w-full justify-center text-center",
+                      heroNav
+                        ? "border-white bg-transparent text-white hover:bg-white/15"
+                        : "border-purple-700 text-purple-700 hover:bg-purple-50"
+                    )}
+                    onClick={() => {
+                      setMobileOpen(false);
+                      void signOut({ callbackUrl: "/" });
+                    }}
+                  >
+                    Sign out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/auth/signin"
+                    prefetch
+                    onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "w-full justify-center text-center",
+                      heroNav
+                        ? "border-white bg-transparent text-white hover:bg-white/15 hover:text-white"
+                        : "border-purple-700 text-purple-700 hover:bg-purple-50"
+                    )}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/auth/signin?mode=signup"
+                    prefetch
+                    onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      buttonVariants(),
+                      "w-full justify-center bg-purple-700 text-white hover:bg-purple-800"
+                    )}
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
