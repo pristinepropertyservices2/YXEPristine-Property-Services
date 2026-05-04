@@ -65,3 +65,40 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: 'Failed to update booking' }, { status: 500 });
   }
 }
+
+export async function DELETE(_request: NextRequest, { params }: Params) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const admin = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    });
+    if (admin?.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const { id } = await params;
+
+    const existing = await db.booking.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+    }
+
+    await db.$transaction(async (tx) => {
+      await tx.payment.deleteMany({ where: { bookingId: id } });
+      await tx.booking.delete({ where: { id } });
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Admin booking delete:', error);
+    return NextResponse.json({ error: 'Failed to delete booking' }, { status: 500 });
+  }
+}

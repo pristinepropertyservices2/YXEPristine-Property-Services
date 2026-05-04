@@ -66,6 +66,8 @@ export default function AdminPage() {
   const [updating, setUpdating] = useState<string | null>(null);
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [confirmDeleteBookingId, setConfirmDeleteBookingId] = useState<string | null>(null);
+  const [deletingBookingId, setDeletingBookingId] = useState<string | null>(null);
   const [resettingGoogleId, setResettingGoogleId] = useState<string | null>(null);
   const [cleanerDrafts, setCleanerDrafts] = useState<Record<string, string>>({});
 
@@ -182,6 +184,30 @@ export default function AdminPage() {
       });
     } finally {
       setDeletingUserId(null);
+    }
+  };
+
+  const deleteBooking = async (bookingId: string) => {
+    setDeletingBookingId(bookingId);
+    try {
+      const res = await fetch(`/api/admin/bookings/${bookingId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Delete failed');
+      setRows((prev) => prev.filter((r) => r.id !== bookingId));
+      toast({
+        title: 'Booking deleted',
+        description: 'The booking and its payment record (if any) were removed.',
+      });
+      setConfirmDeleteBookingId(null);
+      await loadAll();
+    } catch (e) {
+      toast({
+        title: 'Error',
+        description: e instanceof Error ? e.message : 'Delete failed',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeletingBookingId(null);
     }
   };
 
@@ -322,6 +348,7 @@ export default function AdminPage() {
                 <TableHead>Payment</TableHead>
                 <TableHead>Cleaner</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -392,6 +419,23 @@ export default function AdminPage() {
                       </SelectContent>
                     </Select>
                   </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      className="gap-1"
+                      disabled={
+                        updating === r.id ||
+                        deletingBookingId === r.id ||
+                        !!deletingUserId
+                      }
+                      onClick={() => setConfirmDeleteBookingId(r.id)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Delete
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -429,6 +473,36 @@ export default function AdminPage() {
               }}
             >
               {deletingUserId ? 'Deleting…' : 'Delete customer'}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={!!confirmDeleteBookingId}
+        onOpenChange={(open) => {
+          if (!open) setConfirmDeleteBookingId(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this booking?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This removes the booking from your records and deletes any linked payment row in the
+              database. It does <strong className="text-foreground">not</strong> refund Stripe or
+              PayPal automatically—handle refunds separately if needed. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={!!deletingBookingId}>Cancel</AlertDialogCancel>
+            <Button
+              variant="destructive"
+              disabled={!!deletingBookingId}
+              onClick={() => {
+                if (confirmDeleteBookingId) void deleteBooking(confirmDeleteBookingId);
+              }}
+            >
+              {deletingBookingId ? 'Deleting…' : 'Delete booking'}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
