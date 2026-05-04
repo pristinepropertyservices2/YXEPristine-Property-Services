@@ -1,7 +1,6 @@
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
-import FacebookProvider from 'next-auth/providers/facebook';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { db } from '@/lib/db';
 import { verifyPassword } from '@/lib/password';
@@ -65,11 +64,8 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-    }),
-
-    FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID || '',
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET || '',
+      // Same email signed up with password first → allow Google to attach to that user
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   session: {
@@ -118,30 +114,18 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async signIn({ user, account }) {
-      if (account?.provider === 'google' || account?.provider === 'facebook') {
-        if (user.email) {
-          const existingUser = await db.user.findUnique({
-            where: { email: user.email },
+      // User + Account rows for OAuth are created by PrismaAdapter. Do not duplicate-create here
+      // (that caused races and confusing state). We only normalize verification when needed.
+      if (account?.provider === 'google' && user.email) {
+        const existingUser = await db.user.findFirst({
+          where: { email: { equals: user.email, mode: 'insensitive' } },
+        });
+
+        if (existingUser && !existingUser.emailVerified) {
+          await db.user.update({
+            where: { id: existingUser.id },
+            data: { emailVerified: new Date() },
           });
-
-          if (existingUser && !existingUser.emailVerified) {
-            await db.user.update({
-              where: { id: existingUser.id },
-              data: { emailVerified: new Date() },
-            });
-          }
-
-          if (!existingUser) {
-            await db.user.create({
-              data: {
-                email: user.email,
-                name: user.name || '',
-                image: user.image,
-                emailVerified: new Date(),
-                password: null,
-              },
-            });
-          }
         }
       }
       return true;
