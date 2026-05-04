@@ -345,6 +345,15 @@ function SignInContent() {
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back to home
           </Link>
+          <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-xs text-muted-foreground">
+            <Link href="/privacy" className="underline hover:text-foreground">
+              Privacy policy
+            </Link>
+            <span aria-hidden>·</span>
+            <Link href="/terms" className="underline hover:text-foreground">
+              Terms of service
+            </Link>
+          </p>
         </CardFooter>
       </Card>
     </div>

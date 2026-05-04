@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Facebook, Instagram } from "lucide-react";
 
 export function HomeFooter() {
@@ -63,8 +64,16 @@ export function HomeFooter() {
               <li><a href="#reviews" className="hover:text-amber-400">Reviews</a></li>
               <li><a href="#pricing" className="hover:text-amber-400">Pricing</a></li>
               <li><a href="#contact" className="hover:text-amber-400">Contact</a></li>
-              <li><a href="#" className="hover:text-amber-400">Privacy</a></li>
-              <li><a href="#" className="hover:text-amber-400">Terms</a></li>
+              <li>
+                <Link href="/privacy" className="hover:text-amber-400">
+                  Privacy policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="hover:text-amber-400">
+                  Terms of service
+                </Link>
+              </li>
             </ul>
           </div>
 
