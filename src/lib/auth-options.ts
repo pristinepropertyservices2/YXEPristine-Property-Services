@@ -77,7 +77,8 @@ export const authOptions: NextAuthOptions = {
     signOut: '/auth/signout',
     error: '/auth/error',
     verifyRequest: '/auth/verify-request',
-    newUser: '/auth/new-user',
+    /** First-time OAuth users — must match an existing route (was `/auth/new-user`, which was missing → 404). */
+    newUser: '/dashboard',
   },
   callbacks: {
     async jwt({ token, user, trigger, session }) {
