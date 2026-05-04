@@ -66,6 +66,7 @@ export default function AdminPage() {
   const [updating, setUpdating] = useState<string | null>(null);
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [resettingGoogleId, setResettingGoogleId] = useState<string | null>(null);
   const [cleanerDrafts, setCleanerDrafts] = useState<Record<string, string>>({});
 
   const loadAll = async () => {
@@ -184,6 +185,27 @@ export default function AdminPage() {
     }
   };
 
+  const disconnectGoogleForUser = async (userId: string) => {
+    setResettingGoogleId(userId);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/disconnect-google`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      toast({
+        title: 'Google sign-in reset',
+        description: data.message || 'Done.',
+      });
+    } catch (e) {
+      toast({
+        title: 'Error',
+        description: e instanceof Error ? e.message : 'Reset failed',
+        variant: 'destructive',
+      });
+    } finally {
+      setResettingGoogleId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-24">
@@ -205,8 +227,10 @@ export default function AdminPage() {
         <CardHeader>
           <CardTitle>Customers</CardTitle>
           <CardDescription>
-            Customer accounts only. Deleting removes the user, their bookings, payments, and sign-in
-            data. Admin accounts are not listed here.
+            Customer accounts only. If Google login fails but the user exists, run{' '}
+            <code className="rounded bg-muted px-1 py-0.5 text-xs">prisma migrate deploy</code> on the
+            server (Account.type fix), then use <strong>Reset Google</strong> so they can sign in with
+            Google again. Delete removes the user and all related data.
           </CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
@@ -219,7 +243,7 @@ export default function AdminPage() {
                 <TableHead className="text-center">Bookings</TableHead>
                 <TableHead>Joined</TableHead>
                 <TableHead>Verified</TableHead>
-                <TableHead className="w-[100px]" />
+                <TableHead className="min-w-[220px] text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -242,17 +266,32 @@ export default function AdminPage() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="destructive"
-                      className="gap-1"
-                      disabled={deletingUserId === c.id}
-                      onClick={() => setConfirmDeleteId(c.id)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Delete
-                    </Button>
+                    <div className="flex flex-wrap justify-end gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        disabled={resettingGoogleId === c.id || deletingUserId === c.id}
+                        onClick={() => void disconnectGoogleForUser(c.id)}
+                      >
+                        {resettingGoogleId === c.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          'Reset Google'
+                        )}
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="destructive"
+                        className="gap-1"
+                        disabled={deletingUserId === c.id || resettingGoogleId === c.id}
+                        onClick={() => setConfirmDeleteId(c.id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
