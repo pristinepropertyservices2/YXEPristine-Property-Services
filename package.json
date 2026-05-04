@@ -12,6 +12,7 @@
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
     "db:seed": "prisma db seed",
+    "db:delete-users": "npx tsx prisma/scripts/delete-customers.ts",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"
   },

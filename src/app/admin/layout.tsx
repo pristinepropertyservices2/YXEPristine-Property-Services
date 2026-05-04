@@ -11,7 +11,7 @@ export default function AdminLayout({
       <header className="sticky top-0 z-40 border-b bg-white/90 backdrop-blur">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           <Link href="/admin" className="font-semibold text-slate-800">
-            Admin — Bookings
+            Admin
           </Link>
           <DashboardNav showBookService={false} />
         </div>
