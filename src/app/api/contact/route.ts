@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { sendContactInquiryStaffEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,8 +25,16 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // In a real application, you would send an email notification here
-    // For now, we'll just save to the database
+    const notify = await sendContactInquiryStaffEmail({
+      contactId: contact.id,
+      name,
+      email,
+      phone: phone || null,
+      message,
+    });
+    if (!notify.success) {
+      console.warn('[contact] Staff notification email:', notify.message);
+    }
 
     return NextResponse.json({ 
       success: true, 

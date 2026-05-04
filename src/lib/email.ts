@@ -198,7 +198,10 @@ function smtpReady(): boolean {
   );
 }
 
-/** Comma-separated env, or default inbox for new booking alerts. */
+/**
+ * Comma-separated env `BOOKING_NOTIFICATION_EMAIL`, or default business inbox.
+ * Used for booking alerts and contact-form notifications.
+ */
 export function getBookingStaffNotificationRecipients(): string {
   const raw =
     process.env.BOOKING_NOTIFICATION_EMAIL?.trim() || DEFAULT_BOOKING_STAFF_EMAIL;
@@ -285,6 +288,58 @@ export async function sendBookingCreatedStaffEmail(
   return sendEmail({
     to,
     subject: `New booking: ${payload.serviceName} — ${payload.customerName || payload.customerEmail || payload.bookingId}`,
+    html,
+  });
+}
+
+/** Notify business inbox when someone submits the site contact form. */
+export async function sendContactInquiryStaffEmail(payload: {
+  contactId: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  message: string;
+}): Promise<{ success: boolean; message: string }> {
+  const to = getBookingStaffNotificationRecipients();
+  if (!to) {
+    return { success: false, message: 'No notification recipients' };
+  }
+  if (!smtpReady()) {
+    console.warn(
+      '[email] Contact saved but SMTP is not configured; staff notification skipped.'
+    );
+    return { success: false, message: 'SMTP not configured' };
+  }
+
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8"><title>Contact form</title></head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 640px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%); padding: 24px; border-radius: 10px 10px 0 0;">
+        <h1 style="color: white; margin: 0; font-size: 22px;">New contact form message</h1>
+      </div>
+      <div style="background: #f9fafb; padding: 24px; border-radius: 0 0 10px 10px; color: #1f2937;">
+        <table style="width:100%; border-collapse: collapse; font-size: 14px;">
+          <tr><td style="padding:6px 0; color:#6b7280;">Contact ID</td><td style="padding:6px 0;"><strong>${escapeHtml(payload.contactId)}</strong></td></tr>
+          <tr><td style="padding:6px 0; color:#6b7280;">Name</td><td style="padding:6px 0;">${escapeHtml(payload.name)}</td></tr>
+          <tr><td style="padding:6px 0; color:#6b7280;">Email</td><td style="padding:6px 0;"><a href="mailto:${escapeHtml(payload.email)}">${escapeHtml(payload.email)}</a></td></tr>
+          <tr><td style="padding:6px 0; color:#6b7280;">Phone</td><td style="padding:6px 0;">${escapeHtml(payload.phone || '—')}</td></tr>
+        </table>
+        <p style="margin-top: 16px;"><strong>Message</strong></p>
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;white-space:pre-wrap;">${escapeHtml(payload.message)}</div>
+        <p style="margin-top: 20px;">
+          <a href="${escapeHtml(`${baseUrl.replace(/\/$/, '')}/admin`)}" style="background:#7c3aed;color:white;padding:10px 20px;text-decoration:none;border-radius:6px;display:inline-block;">Open admin</a>
+        </p>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to,
+    subject: `Contact: ${payload.name} — ${payload.email}`,
     html,
   });
 }
