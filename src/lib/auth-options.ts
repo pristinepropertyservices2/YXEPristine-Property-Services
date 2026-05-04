@@ -1,7 +1,7 @@
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { prismaAuthAdapter } from '@/lib/prisma-auth-adapter';
 import { db } from '@/lib/db';
 import { verifyPassword } from '@/lib/password';
 
@@ -17,7 +17,7 @@ function isSmtpConfigured() {
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(db),
+  adapter: prismaAuthAdapter(db),
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
