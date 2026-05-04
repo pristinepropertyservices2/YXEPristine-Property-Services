@@ -19,7 +19,7 @@ export function HomeFooter() {
                     height={1089}
                     className="h-12 w-auto"
                     sizes="160px"
-                    quality={90}
+                    quality={75}
                   />
               </div>
             </div>

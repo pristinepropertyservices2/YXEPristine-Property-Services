@@ -73,7 +73,7 @@ export function SiteNavbar() {
               height={1089}
               className="h-12 w-auto md:h-[3.5rem] lg:h-[3.75rem]"
               priority
-              quality={96}
+              quality={75}
               sizes="(max-width: 768px) 196px, 236px"
             />
           </Link>
