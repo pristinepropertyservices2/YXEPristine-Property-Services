@@ -10,7 +10,9 @@ ADD COLUMN IF NOT EXISTS "phone" TEXT,
 ADD COLUMN IF NOT EXISTS "serviceType" TEXT,
 ADD COLUMN IF NOT EXISTS "bookingDate" TIMESTAMP(3),
 ADD COLUMN IF NOT EXISTS "bookingTime" TEXT,
-ADD COLUMN IF NOT EXISTS "paymentStatus" "PaymentStatus" NOT NULL DEFAULT 'UNPAID',
+-- Important: use existing enum value in this migration transaction.
+-- UNPAID is set as default in a follow-up migration after enum commit.
+ADD COLUMN IF NOT EXISTS "paymentStatus" "PaymentStatus" NOT NULL DEFAULT 'PENDING',
 ADD COLUMN IF NOT EXISTS "assignedCleanerId" TEXT;
 
 -- Backfill snapshot columns from existing data.
