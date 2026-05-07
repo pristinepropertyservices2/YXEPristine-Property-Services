@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { DashboardNav } from '@/components/dashboard-nav';
+import { AdminSidebar } from '@/components/admin-sidebar';
 
 export default function AdminLayout({
   children,
@@ -24,7 +25,10 @@ export default function AdminLayout({
           <DashboardNav showBookService={false} />
         </div>
       </header>
-      <main className="container mx-auto px-4 py-8">{children}</main>
+      <div className="flex flex-col md:flex-row">
+        <AdminSidebar />
+        <main className="flex-1 px-4 py-8 md:px-8">{children}</main>
+      </div>
     </div>
   );
 }

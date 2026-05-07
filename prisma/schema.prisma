@@ -24,6 +24,8 @@ enum BookingStatus {
 }
 
 enum PaymentStatus {
+  UNPAID
+  PAID
   PENDING
   COMPLETED
   FAILED
@@ -178,6 +180,27 @@ model Booking {
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
   payment          Payment?
+  // Snapshot fields for admin workflows/reporting
+  customerName     String?
+  email            String?
+  phone            String?
+  serviceType      String?
+  bookingDate      DateTime?
+  bookingTime      String?
+  paymentStatus    PaymentStatus @default(UNPAID)
+  assignedCleanerId String?
+  assignedCleanerRef Cleaner?    @relation(fields: [assignedCleanerId], references: [id], onDelete: SetNull)
+}
+
+model Cleaner {
+  id           String    @id @default(cuid())
+  name         String
+  email        String?   @unique
+  phone        String?
+  availability String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  bookings     Booking[]
 }
 
 model Payment {

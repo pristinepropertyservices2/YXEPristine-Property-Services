@@ -105,6 +105,10 @@ export async function POST(request: NextRequest) {
     if (!service || !service.isActive) {
       return NextResponse.json({ error: 'Service not found' }, { status: 404 });
     }
+    const customer = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { name: true, email: true, phone: true },
+    });
 
     const duration =
       typeof durationMinutes === 'number' && durationMinutes >= service.duration
@@ -140,6 +144,13 @@ export async function POST(request: NextRequest) {
         durationMinutes: duration,
         addOns: addOnsJson,
         status: 'PENDING',
+        paymentStatus: 'UNPAID',
+        customerName: customer?.name ?? null,
+        email: customer?.email ?? null,
+        phone: customer?.phone ?? null,
+        serviceType: service.name,
+        bookingDate: new Date(date),
+        bookingTime: time,
       },
       include: bookingInclude,
     });

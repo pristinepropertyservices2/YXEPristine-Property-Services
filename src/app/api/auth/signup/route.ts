@@ -6,7 +6,7 @@ import { sendVerificationEmail } from '@/lib/email';
 
 function isSmtpConfigured() {
   const user = process.env.SMTP_USER || '';
-  const pass = process.env.SMTP_PASSWORD || '';
+  const pass = process.env.SMTP_PASSWORD || process.env.SMTP_PASS || '';
   return (
     user.length > 0 &&
     pass.length > 0 &&

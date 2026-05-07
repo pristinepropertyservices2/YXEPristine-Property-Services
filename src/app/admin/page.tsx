@@ -240,6 +240,15 @@ export default function AdminPage() {
     );
   }
 
+  const totalBookings = rows.length;
+  const pendingCount = rows.filter((r) => r.status === 'PENDING').length;
+  const confirmedCount = rows.filter((r) => r.status === 'CONFIRMED').length;
+  const completedCount = rows.filter((r) => r.status === 'COMPLETED').length;
+  const pendingPayments = rows.filter((r) => !r.payment || r.payment.status !== 'COMPLETED').length;
+  const revenue = rows
+    .filter((r) => r.payment?.status === 'COMPLETED')
+    .reduce((sum, r) => sum + r.totalPrice, 0);
+
   return (
     <div className="space-y-6">
       <div>
@@ -247,6 +256,15 @@ export default function AdminPage() {
         <p className="text-muted-foreground">
           Monitor bookings, manage customer accounts, and update job status as work progresses.
         </p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-6">
+        <Card><CardHeader className="pb-2"><CardDescription>Total Bookings</CardDescription><CardTitle>{totalBookings}</CardTitle></CardHeader></Card>
+        <Card><CardHeader className="pb-2"><CardDescription>Pending</CardDescription><CardTitle>{pendingCount}</CardTitle></CardHeader></Card>
+        <Card><CardHeader className="pb-2"><CardDescription>Confirmed</CardDescription><CardTitle>{confirmedCount}</CardTitle></CardHeader></Card>
+        <Card><CardHeader className="pb-2"><CardDescription>Completed</CardDescription><CardTitle>{completedCount}</CardTitle></CardHeader></Card>
+        <Card><CardHeader className="pb-2"><CardDescription>Revenue</CardDescription><CardTitle>${revenue.toFixed(2)}</CardTitle></CardHeader></Card>
+        <Card><CardHeader className="pb-2"><CardDescription>Pending Payments</CardDescription><CardTitle>{pendingPayments}</CardTitle></CardHeader></Card>
       </div>
 
       <Card>

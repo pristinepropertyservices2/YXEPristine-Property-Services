@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { db } from '@/lib/db';
+import { sendBookingLifecycleEmail } from '@/lib/email';
 
 const getStripe = () => {
   const secretKey = process.env.STRIPE_SECRET_KEY;
@@ -51,10 +52,24 @@ export async function POST(request: NextRequest) {
       });
 
       if (payment.bookingId) {
-        await db.booking.update({
+        const booking = await db.booking.update({
           where: { id: payment.bookingId },
-          data: { status: 'CONFIRMED' },
+          data: { status: 'CONFIRMED', paymentStatus: 'PAID' },
+          include: { user: true, service: true, assignedCleanerRef: true },
         });
+        if (booking.user.email) {
+          await sendBookingLifecycleEmail({
+            to: booking.user.email,
+            customerName: booking.user.name,
+            bookingId: booking.id,
+            serviceType: booking.serviceType || booking.service.name,
+            date: booking.bookingDate || booking.date,
+            time: booking.bookingTime || booking.time,
+            status: 'CONFIRMED',
+            cleanerName: booking.assignedCleanerRef?.name || booking.assignedCleaner,
+            notes: booking.notes,
+          });
+        }
       }
 
       return NextResponse.json({

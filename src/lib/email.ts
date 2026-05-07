@@ -10,7 +10,7 @@ interface EmailOptions {
 /** True when env has real SMTP credentials (same rules as auth signup). */
 export function isSmtpConfigured(): boolean {
   const user = process.env.SMTP_USER || '';
-  const pass = process.env.SMTP_PASSWORD || '';
+  const pass = process.env.SMTP_PASSWORD || process.env.SMTP_PASS || '';
   return (
     user.length > 0 &&
     pass.length > 0 &&
@@ -27,7 +27,7 @@ function createTransporter() {
     secure: false,
     auth: {
       user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
+      pass: process.env.SMTP_PASSWORD || process.env.SMTP_PASS,
     },
   });
 }
@@ -201,7 +201,7 @@ const DEFAULT_BOOKING_STAFF_EMAIL = 'pristinepropertyservices2@gmail.com';
 
 function smtpReady(): boolean {
   const user = process.env.SMTP_USER || '';
-  const pass = process.env.SMTP_PASSWORD || '';
+  const pass = process.env.SMTP_PASSWORD || process.env.SMTP_PASS || '';
   return (
     user.length > 0 &&
     pass.length > 0 &&
@@ -352,6 +352,74 @@ export async function sendContactInquiryStaffEmail(payload: {
   return sendEmail({
     to,
     subject: `Contact: ${payload.name} — ${payload.email}`,
+    html,
+  });
+}
+
+export async function sendBookingLifecycleEmail(payload: {
+  to: string;
+  customerName?: string | null;
+  bookingId: string;
+  serviceType: string;
+  date: Date;
+  time: string;
+  status: 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
+  cleanerName?: string | null;
+  notes?: string | null;
+}): Promise<{ success: boolean; message: string }> {
+  if (!payload.to) return { success: false, message: 'Missing customer email' };
+  if (!smtpReady()) return { success: false, message: 'SMTP not configured' };
+
+  const baseUrl = (process.env.NEXTAUTH_URL || 'http://localhost:3000').replace(/\/$/, '');
+  const statusLabel =
+    payload.status === 'CONFIRMED'
+      ? 'Booking Confirmed'
+      : payload.status === 'CANCELLED'
+      ? 'Booking Cancelled'
+      : 'Booking Completed';
+  const intro =
+    payload.status === 'CONFIRMED'
+      ? 'Great news — your booking is confirmed.'
+      : payload.status === 'CANCELLED'
+      ? 'Your booking has been cancelled.'
+      : 'Your booking has been marked completed. Thank you for choosing us.';
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8"><title>${statusLabel}</title></head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 620px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%); padding: 24px; border-radius: 10px 10px 0 0;">
+        <h1 style="color: #fff; margin: 0; font-size: 22px;">${statusLabel}</h1>
+      </div>
+      <div style="background: #f9fafb; padding: 24px; border-radius: 0 0 10px 10px; color: #111827;">
+        <p>Hello ${escapeHtml(payload.customerName || 'Customer')},</p>
+        <p>${escapeHtml(intro)}</p>
+        <table style="width:100%; border-collapse: collapse; font-size: 14px;">
+          <tr><td style="padding:6px 0;color:#6b7280;">Booking ID</td><td style="padding:6px 0;"><strong>${escapeHtml(payload.bookingId)}</strong></td></tr>
+          <tr><td style="padding:6px 0;color:#6b7280;">Service</td><td style="padding:6px 0;">${escapeHtml(payload.serviceType)}</td></tr>
+          <tr><td style="padding:6px 0;color:#6b7280;">Date</td><td style="padding:6px 0;">${escapeHtml(payload.date.toLocaleDateString('en-CA', { dateStyle: 'full', timeZone: 'America/Regina' }))}</td></tr>
+          <tr><td style="padding:6px 0;color:#6b7280;">Time</td><td style="padding:6px 0;">${escapeHtml(payload.time)}</td></tr>
+          ${
+            payload.cleanerName
+              ? `<tr><td style="padding:6px 0;color:#6b7280;">Cleaner</td><td style="padding:6px 0;">${escapeHtml(payload.cleanerName)}</td></tr>`
+              : ''
+          }
+        </table>
+        ${
+          payload.notes
+            ? `<p style="margin-top:12px;"><strong>Notes:</strong><br>${escapeHtml(payload.notes).replace(/\n/g, '<br>')}</p>`
+            : ''
+        }
+        <p style="margin-top:18px;"><a href="${escapeHtml(`${baseUrl}/dashboard`)}" style="background:#7c3aed;color:#fff;padding:10px 20px;text-decoration:none;border-radius:6px;display:inline-block;">View dashboard</a></p>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to: payload.to,
+    subject: `${statusLabel} - YXE Pristine Property Services`,
     html,
   });
 }
