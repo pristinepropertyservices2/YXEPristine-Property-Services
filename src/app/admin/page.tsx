@@ -271,10 +271,8 @@ export default function AdminPage() {
         <CardHeader>
           <CardTitle>Customers</CardTitle>
           <CardDescription>
-            Customer accounts only. If Google login fails but the user exists, run{' '}
-            <code className="rounded bg-muted px-1 py-0.5 text-xs">prisma migrate deploy</code> on the
-            server (Account.type fix), then use <strong>Reset Google</strong> so they can sign in with
-            Google again. Delete removes the user and all related data.
+            Customer accounts only. Use <strong>Reset Google</strong> to reconnect Google sign-in for
+            an existing account. Delete removes the user and all related data.
           </CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
