@@ -28,7 +28,7 @@ export function HeroSection({ typedLocation, typingCursorVisible }: HeroSectionP
           priority
           sizes="100vw"
           decoding="async"
-          className="object-cover object-center"
+          className="object-cover object-center brightness-110"
         />
       </div>
       <div
