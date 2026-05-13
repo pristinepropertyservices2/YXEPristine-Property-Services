@@ -14,7 +14,9 @@ export default function BookingSuccessPage() {
   const provider = searchParams.get('provider');
   const sessionId = searchParams.get('session_id');
   const paymentId = searchParams.get('payment_id');
-  const [verifying, setVerifying] = useState(provider === 'stripe' && !!sessionId && !!paymentId);
+  const [verifying, setVerifying] = useState(
+    provider === 'stripe' && !!sessionId && !!paymentId
+  );
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

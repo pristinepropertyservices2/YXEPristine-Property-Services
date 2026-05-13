@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Loader2, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
+import { SquareWebPayment } from '@/components/payments/square-web-payment';
 
 type BookingPayload = {
   id: string;
@@ -18,11 +19,10 @@ type BookingPayload = {
 
 export default function BookingPaymentPage() {
   const params = useParams();
+  const router = useRouter();
   const bookingId = params.bookingId as string;
   const [booking, setBooking] = useState<BookingPayload | null>(null);
   const [loading, setLoading] = useState(true);
-  const [paying, setPaying] = useState(false);
-  const [method, setMethod] = useState<'stripe' | 'paypal'>('stripe');
 
   useEffect(() => {
     let cancelled = false;
@@ -48,49 +48,6 @@ export default function BookingPaymentPage() {
       cancelled = true;
     };
   }, [bookingId]);
-
-  const startPayment = async () => {
-    if (!booking) return;
-    setPaying(true);
-    try {
-      const create = await fetch(
-        method === 'stripe' ? '/api/payments/stripe' : '/api/payments/paypal',
-        {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId }),
-        }
-      );
-      const created = await create.json();
-      if (!create.ok) {
-        throw new Error(created.error || 'Could not start payment');
-      }
-
-      if (method === 'stripe') {
-        const checkoutUrl = created.checkoutUrl as string | undefined;
-        if (!checkoutUrl) {
-          throw new Error('Stripe checkout URL missing');
-        }
-        window.location.href = checkoutUrl;
-        return;
-      }
-
-      const approvalUrl = created.approvalUrl as string | undefined;
-      if (!approvalUrl) {
-        throw new Error('PayPal approval URL missing');
-      }
-      window.location.href = approvalUrl;
-      return;
-    } catch (e) {
-      toast({
-        title: 'Payment error',
-        description: e instanceof Error ? e.message : 'Try again',
-        variant: 'destructive',
-      });
-    } finally {
-      setPaying(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -141,49 +98,21 @@ export default function BookingPaymentPage() {
             Pay for booking
           </CardTitle>
           <CardDescription>
-            {booking.service.name} — total{' '}
-            <strong>${booking.totalPrice.toFixed(2)} CAD</strong>
+            {booking.service.name} — total <strong>${booking.totalPrice.toFixed(2)} CAD</strong>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Choose a payment method. You will be redirected to the official provider checkout.
+            Pay securely with Square. Your card is processed by Square; we never store card numbers on
+            our servers.
           </p>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              type="button"
-              variant={method === 'stripe' ? 'default' : 'outline'}
-              className={method === 'stripe' ? 'bg-purple-700 hover:bg-purple-800' : ''}
-              onClick={() => setMethod('stripe')}
-              disabled={paying}
-            >
-              Stripe
-            </Button>
-            <Button
-              type="button"
-              variant={method === 'paypal' ? 'default' : 'outline'}
-              className={method === 'paypal' ? 'bg-purple-700 hover:bg-purple-800' : ''}
-              onClick={() => setMethod('paypal')}
-              disabled={paying}
-            >
-              PayPal
-            </Button>
-          </div>
-          <Button
-            className="w-full bg-purple-700 hover:bg-purple-800"
-            size="lg"
-            disabled={paying}
-            onClick={startPayment}
-          >
-            {paying ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Redirecting…
-              </>
-            ) : (
-              `Pay with ${method === 'stripe' ? 'Stripe' : 'PayPal'}`
-            )}
-          </Button>
+          <SquareWebPayment
+            mode={{ type: 'booking', bookingId }}
+            buttonLabel={`Pay $${booking.totalPrice.toFixed(2)} with Square`}
+            onSuccess={() => {
+              router.push(`/book/${bookingId}/success?provider=square`);
+            }}
+          />
           <Button variant="ghost" className="w-full" asChild>
             <Link href="/dashboard">Cancel</Link>
           </Button>
