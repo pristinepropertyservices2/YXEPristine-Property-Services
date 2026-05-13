@@ -1,9 +1,16 @@
 const SQUARE_VERSION = '2024-04-17';
 
+export type SquarePublicEnvironment = 'sandbox' | 'production';
+
+export function getSquareEnvironment(): SquarePublicEnvironment {
+  return process.env.SQUARE_ENVIRONMENT === 'production' ? 'production' : 'sandbox';
+}
+
 export function isSquareConfigured(): boolean {
   return Boolean(
-    process.env.SQUARE_ACCESS_TOKEN &&
-      (process.env.SQUARE_LOCATION_ID || process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID)
+    process.env.SQUARE_ACCESS_TOKEN?.trim() &&
+      (process.env.SQUARE_LOCATION_ID || process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID)?.trim() &&
+      process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID?.trim()
   );
 }
 
@@ -20,11 +27,53 @@ export function getSquarePublicScriptUrl(): string {
 }
 
 export function getSquareLocationId(): string | undefined {
-  return process.env.SQUARE_LOCATION_ID || process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID;
+  const raw = process.env.SQUARE_LOCATION_ID || process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID;
+  const v = raw?.trim();
+  return v || undefined;
 }
 
 export function getSquareApplicationId(): string | undefined {
-  return process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID;
+  const v = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID?.trim();
+  return v || undefined;
+}
+
+/**
+ * Catch common misconfigurations before the Web Payments SDK throws a vague
+ * "applicationId option is not in the correct format" error.
+ */
+export function validateSquareWebPaymentsClientIds(opts: {
+  applicationId: string;
+  locationId: string;
+  environment: SquarePublicEnvironment;
+}): string | null {
+  const { applicationId, locationId, environment } = opts;
+
+  if (!applicationId || !locationId) {
+    return 'Application ID and Location ID must be non-empty.';
+  }
+
+  if (/\s/.test(applicationId) || /\s/.test(locationId)) {
+    return 'Application ID or Location ID contains whitespace. Remove stray spaces or smart quotes from your .env.';
+  }
+
+  // Access tokens are long opaque strings; Application IDs are short with known prefixes.
+  if (applicationId.length > 80) {
+    return 'NEXT_PUBLIC_SQUARE_APPLICATION_ID looks like an access token (too long). In Square Developer → your app → Credentials, copy Application ID, not Access token.';
+  }
+
+  if (applicationId.startsWith('L') && /^L[A-Za-z0-9]{10,}$/.test(applicationId)) {
+    return 'NEXT_PUBLIC_SQUARE_APPLICATION_ID looks like a Location ID (starts with L). Use the Application ID from the Credentials tab, not Locations.';
+  }
+
+  if (environment === 'sandbox') {
+    if (!applicationId.startsWith('sandbox-')) {
+      return 'For SQUARE_ENVIRONMENT=sandbox (default), NEXT_PUBLIC_SQUARE_APPLICATION_ID must be your Sandbox Application ID from the developer app — it starts with "sandbox-". A production Application ID will not work with the sandbox Web Payments script.';
+    }
+  } else if (applicationId.startsWith('sandbox-')) {
+    return 'For SQUARE_ENVIRONMENT=production, use your Production Application ID (not a sandbox-* id) with https://web.squarecdn.com/v1/square.js.';
+  }
+
+  return null;
 }
 
 type SquarePaymentResponse = {
@@ -40,7 +89,7 @@ export async function squareChargeCard(opts: {
   idempotencyKey: string;
   note?: string;
 }): Promise<{ id: string; status: string }> {
-  const token = process.env.SQUARE_ACCESS_TOKEN;
+  const token = process.env.SQUARE_ACCESS_TOKEN?.trim();
   if (!token) {
     throw new Error('SQUARE_ACCESS_TOKEN is not set');
   }

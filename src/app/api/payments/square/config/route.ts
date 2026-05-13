@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import {
   getSquareApplicationId,
+  getSquareEnvironment,
   getSquareLocationId,
   getSquarePublicScriptUrl,
   isSquareConfigured,
+  validateSquareWebPaymentsClientIds,
 } from '@/lib/square-api';
 
 /** Public config for the Web Payments SDK (no secrets). */
@@ -30,10 +32,16 @@ export async function GET() {
     );
   }
 
+  const environment = getSquareEnvironment();
+  const formatError = validateSquareWebPaymentsClientIds({ applicationId, locationId, environment });
+  if (formatError) {
+    return NextResponse.json({ error: formatError }, { status: 503 });
+  }
+
   return NextResponse.json({
     applicationId,
     locationId,
     scriptUrl: getSquarePublicScriptUrl(),
-    environment: process.env.SQUARE_ENVIRONMENT === 'production' ? 'production' : 'sandbox',
+    environment,
   });
 }
