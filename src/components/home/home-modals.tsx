@@ -20,6 +20,7 @@ import type { HomeService } from "@/lib/home-data";
 import { Check, CalendarIcon, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { formatTime24hTo12h } from "@/lib/time-display";
 
 export type AuthFormState = {
   name: string;
@@ -127,7 +128,11 @@ export function HomeModals({
                         mode="single"
                         selected={selectedDate}
                         onSelect={setSelectedDate}
-                        disabled={(date) => date < new Date() || date.getDay() === 0 || date.getDay() === 6}
+                        disabled={(date) => {
+                          const today = new Date();
+                          today.setHours(0, 0, 0, 0);
+                          return date < today;
+                        }}
                         initialFocus
                       />
                     </PopoverContent>
@@ -143,7 +148,7 @@ export function HomeModals({
                     <SelectContent>
                       {timeSlots.map((slot) => (
                         <SelectItem key={slot} value={slot}>
-                          {slot}
+                          {formatTime24hTo12h(slot)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -152,7 +157,9 @@ export function HomeModals({
 
                 <Alert>
                   <Clock className="h-4 w-4" />
-                  <AlertDescription>Available Monday – Friday, 8:00 AM – 5:00 PM</AlertDescription>
+                  <AlertDescription>
+                    Book any day, any time — hourly arrival windows from 12:00 AM through 11:00 PM.
+                  </AlertDescription>
                 </Alert>
               </div>
             )}
@@ -219,7 +226,7 @@ export function HomeModals({
                       <strong>Date:</strong> {selectedDate ? format(selectedDate, "PPPP") : "Not selected"}
                     </p>
                     <p>
-                      <strong>Time:</strong> {selectedTime}
+                      <strong>Time:</strong> {formatTime24hTo12h(selectedTime)}
                     </p>
                     <p>
                       <strong>Address:</strong> {bookingForm.address}, {bookingForm.city}

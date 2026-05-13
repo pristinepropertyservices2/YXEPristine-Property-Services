@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { db } from '@/lib/db';
 import type { BookingStatus, PaymentStatus } from '@prisma/client';
-import { sendBookingLifecycleEmail } from '@/lib/email';
+import { sendBookingLifecycleEmail, bookingLifecycleEmailExtrasFromBooking } from '@/lib/email';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -60,6 +60,14 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       return NextResponse.json({ error: 'Invalid payment status' }, { status: 400 });
     }
 
+    const prior = await db.booking.findUnique({
+      where: { id },
+      select: { status: true },
+    });
+    if (!prior) {
+      return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+    }
+
     const booking = await db.booking.update({
       where: { id },
       data: {
@@ -87,6 +95,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     });
 
     if (status && ['CONFIRMED', 'CANCELLED', 'COMPLETED'].includes(status) && booking.user.email) {
+      const extras = bookingLifecycleEmailExtrasFromBooking(booking);
       const send = await sendBookingLifecycleEmail({
         to: booking.user.email,
         customerName: booking.user.name,
@@ -97,9 +106,36 @@ export async function PATCH(request: NextRequest, { params }: Params) {
         status: status as 'CONFIRMED' | 'CANCELLED' | 'COMPLETED',
         cleanerName: booking.assignedCleanerRef?.name || booking.assignedCleaner,
         notes: booking.notes,
+        ...extras,
       });
       if (!send.success) {
         console.warn('[admin-bookings] Lifecycle email failed:', send.message);
+      }
+    }
+
+    const autoConfirmFromAssignment =
+      !status &&
+      prior.status === 'PENDING' &&
+      booking.status === 'CONFIRMED' &&
+      ((assignedCleanerId !== undefined && Boolean(assignedCleanerId)) ||
+        (assignedCleaner !== undefined && Boolean(assignedCleaner?.trim())));
+
+    if (autoConfirmFromAssignment && booking.user.email) {
+      const extras = bookingLifecycleEmailExtrasFromBooking(booking);
+      const send = await sendBookingLifecycleEmail({
+        to: booking.user.email,
+        customerName: booking.user.name,
+        bookingId: booking.id,
+        serviceType: booking.serviceType || booking.service.name,
+        date: booking.bookingDate || booking.date,
+        time: booking.bookingTime || booking.time,
+        status: 'CONFIRMED',
+        cleanerName: booking.assignedCleanerRef?.name || booking.assignedCleaner,
+        notes: booking.notes,
+        ...extras,
+      });
+      if (!send.success) {
+        console.warn('[admin-bookings] Confirmation email (assign cleaner) failed:', send.message);
       }
     }
 

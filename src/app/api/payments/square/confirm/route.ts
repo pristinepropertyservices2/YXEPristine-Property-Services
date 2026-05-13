@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { db } from '@/lib/db';
-import { sendBookingLifecycleEmail } from '@/lib/email';
+import { sendBookingLifecycleEmail, bookingLifecycleEmailExtrasFromBooking } from '@/lib/email';
 import { getSquareLocationId, isSquareConfigured, squareChargeCard } from '@/lib/square-api';
 
 function isPaidSquareStatus(status: string) {
@@ -93,6 +93,7 @@ export async function POST(request: NextRequest) {
           status: 'CONFIRMED',
           cleanerName: booking.assignedCleanerRef?.name || booking.assignedCleaner,
           notes: booking.notes,
+          ...bookingLifecycleEmailExtrasFromBooking(booking),
         });
       }
     }

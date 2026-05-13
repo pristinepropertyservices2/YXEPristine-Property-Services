@@ -170,6 +170,7 @@ export async function POST(request: NextRequest) {
       totalPrice: booking.totalPrice,
       durationMinutes: booking.durationMinutes,
       addOnsSummary: formatAddOnsSummary(booking.addOns),
+      bookingStatus: booking.status,
     });
     if (!notify.success) {
       console.warn('[bookings] Staff notification email:', notify.message);

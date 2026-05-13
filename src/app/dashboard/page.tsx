@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Calendar, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
+import { formatTime24hTo12h } from '@/lib/time-display';
 
 type BookingRow = {
   id: string;
@@ -137,7 +138,7 @@ export default function DashboardPage() {
                   <div className="flex flex-wrap gap-x-4 text-sm text-muted-foreground">
                     <span className="inline-flex items-center gap-1">
                       <Calendar className="h-3.5 w-3.5" />
-                      {format(new Date(b.date), 'PPP')} at {b.time}
+                      {format(new Date(b.date), 'PPP')} at {formatTime24hTo12h(b.time)}
                     </span>
                     <span className="inline-flex items-center gap-1">
                       <MapPin className="h-3.5 w-3.5" />

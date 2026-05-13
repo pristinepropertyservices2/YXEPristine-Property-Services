@@ -22,19 +22,10 @@ import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { calculateBookingTotal, type AddOnLine } from '@/lib/booking-price';
+import { formatTime24hTo12h } from '@/lib/time-display';
 import { toast } from '@/hooks/use-toast';
 
-const timeSlots = [
-  '08:00',
-  '09:00',
-  '10:00',
-  '11:00',
-  '12:00',
-  '13:00',
-  '14:00',
-  '15:00',
-  '16:00',
-];
+import { BOOKING_TIME_SLOTS_24H } from '@/lib/booking-time-slots';
 
 type ServiceListItem = {
   id: string;
@@ -224,7 +215,7 @@ export function BookingWizard() {
           <CardTitle>{STEPS[step]}</CardTitle>
           <CardDescription>
             {step === 0 && 'Choose the service you need.'}
-            {step === 1 && 'Pick a date and arrival window.'}
+            {step === 1 && 'Pick a date and hourly arrival time — any day, 12:00 AM–11:00 PM.'}
             {step === 2 && 'Where should we visit?'}
             {step === 3 && 'Add extras and adjust visit duration.'}
             {step === 4 && 'Review your estimate.'}
@@ -291,9 +282,9 @@ export function BookingWizard() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {timeSlots.map((t) => (
+                    {BOOKING_TIME_SLOTS_24H.map((t) => (
                       <SelectItem key={t} value={t}>
-                        {t}
+                        {formatTime24hTo12h(t)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -404,7 +395,7 @@ export function BookingWizard() {
                 <strong>Service:</strong> {detail.name}
               </p>
               <p>
-                <strong>When:</strong> {format(date, 'PPP')} at {time}
+                <strong>When:</strong> {format(date, 'PPP')} at {formatTime24hTo12h(time)}
               </p>
               <p>
                 <strong>Where:</strong> {address}, {city} {postalCode}

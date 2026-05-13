@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { db } from '@/lib/db';
-import { sendBookingLifecycleEmail } from '@/lib/email';
+import { sendBookingLifecycleEmail, bookingLifecycleEmailExtrasFromBooking } from '@/lib/email';
 
 const getStripe = () => {
   const secretKey = process.env.STRIPE_SECRET_KEY;
@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
             status: 'CONFIRMED',
             cleanerName: booking.assignedCleanerRef?.name || booking.assignedCleaner,
             notes: booking.notes,
+            ...bookingLifecycleEmailExtrasFromBooking(booking),
           });
         }
       }

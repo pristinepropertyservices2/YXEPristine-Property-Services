@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
+import { formatTime24hTo12h } from '@/lib/time-display';
 import {
   Table,
   TableBody,
@@ -119,7 +120,13 @@ export default function AdminPage() {
       setRows((prev) =>
         prev.map((r) => (r.id === id ? { ...r, status: data.booking.status } : r))
       );
-      toast({ title: 'Updated', description: `Booking ${status}` });
+      toast({
+        title: 'Updated',
+        description:
+          status === 'CONFIRMED'
+            ? 'Booking confirmed. A confirmation email was sent to the customer if SMTP is configured.'
+            : `Booking ${status}`,
+      });
     } catch (e) {
       toast({
         title: 'Error',
@@ -349,7 +356,8 @@ export default function AdminPage() {
         <CardHeader>
           <CardTitle>All bookings</CardTitle>
           <CardDescription>
-            New bookings start as PENDING until payment confirms (CONFIRMED).
+            New bookings are saved as <strong>PENDING</strong>. Use <strong>Confirm booking</strong> or set
+            status to Confirmed to notify the customer; payment may still be required depending on your process.
           </CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
@@ -373,7 +381,7 @@ export default function AdminPage() {
                   <TableCell className="whitespace-nowrap text-sm">
                     {format(new Date(r.date), 'MMM d, yyyy')}
                     <br />
-                    <span className="text-muted-foreground">{r.time}</span>
+                    <span className="text-muted-foreground">{formatTime24hTo12h(r.time)}</span>
                   </TableCell>
                   <TableCell>
                     <div className="font-medium">{r.user.name || '—'}</div>
@@ -436,21 +444,34 @@ export default function AdminPage() {
                     </Select>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="destructive"
-                      className="gap-1"
-                      disabled={
-                        updating === r.id ||
-                        deletingBookingId === r.id ||
-                        !!deletingUserId
-                      }
-                      onClick={() => setConfirmDeleteBookingId(r.id)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Delete
-                    </Button>
+                    <div className="flex flex-wrap justify-end gap-2">
+                      {r.status === 'PENDING' && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="bg-purple-700 hover:bg-purple-800"
+                          disabled={updating === r.id || !!deletingUserId}
+                          onClick={() => void patchStatus(r.id, 'CONFIRMED')}
+                        >
+                          Confirm booking
+                        </Button>
+                      )}
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="destructive"
+                        className="gap-1"
+                        disabled={
+                          updating === r.id ||
+                          deletingBookingId === r.id ||
+                          !!deletingUserId
+                        }
+                        onClick={() => setConfirmDeleteBookingId(r.id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

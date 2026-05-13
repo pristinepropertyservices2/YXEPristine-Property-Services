@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { sendBookingLifecycleEmail } from '@/lib/email';
+import { sendBookingLifecycleEmail, bookingLifecycleEmailExtrasFromBooking } from '@/lib/email';
 
 // PayPal API base URL
 const PAYPAL_API = process.env.PAYPAL_SANDBOX === 'true' 
@@ -98,6 +98,7 @@ export async function POST(request: NextRequest) {
             status: 'CONFIRMED',
             cleanerName: booking.assignedCleanerRef?.name || booking.assignedCleaner,
             notes: booking.notes,
+            ...bookingLifecycleEmailExtrasFromBooking(booking),
           });
         }
       }

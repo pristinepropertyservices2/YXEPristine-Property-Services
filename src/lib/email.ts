@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { formatTime24hTo12h } from './time-display';
 
 interface EmailOptions {
   to: string;
@@ -239,6 +240,8 @@ export type BookingStaffEmailPayload = {
   totalPrice: number;
   durationMinutes: number;
   addOnsSummary: string | null;
+  /** Display status for the admin alert (e.g. PENDING). */
+  bookingStatus: string;
 };
 
 /** Notify business inbox when a customer creates a booking (does not block booking on failure). */
@@ -274,12 +277,13 @@ export async function sendBookingCreatedStaffEmail(
         <h1 style="color: white; margin: 0; font-size: 22px;">New customer booking</h1>
       </div>
       <div style="background: #f9fafb; padding: 24px; border-radius: 0 0 10px 10px; color: #1f2937;">
-        <p>A customer submitted a booking. Status is <strong>PENDING</strong> until payment is completed.</p>
+        <p>A customer submitted a new booking.</p>
         <table style="width:100%; border-collapse: collapse; font-size: 14px;">
+          <tr><td style="padding:6px 0; color:#6b7280;">Booking status</td><td style="padding:6px 0;"><strong>${escapeHtml(payload.bookingStatus)}</strong></td></tr>
           <tr><td style="padding:6px 0; color:#6b7280;">Booking ID</td><td style="padding:6px 0;"><strong>${escapeHtml(payload.bookingId)}</strong></td></tr>
           <tr><td style="padding:6px 0; color:#6b7280;">Service</td><td style="padding:6px 0;">${escapeHtml(payload.serviceName)}</td></tr>
           <tr><td style="padding:6px 0; color:#6b7280;">Date</td><td style="padding:6px 0;">${escapeHtml(when)}</td></tr>
-          <tr><td style="padding:6px 0; color:#6b7280;">Time</td><td style="padding:6px 0;">${escapeHtml(payload.time)}</td></tr>
+          <tr><td style="padding:6px 0; color:#6b7280;">Time</td><td style="padding:6px 0;">${escapeHtml(formatTime24hTo12h(payload.time))}</td></tr>
           <tr><td style="padding:6px 0; color:#6b7280;">Duration</td><td style="padding:6px 0;">${payload.durationMinutes} min</td></tr>
           <tr><td style="padding:6px 0; color:#6b7280;">Total</td><td style="padding:6px 0;">$${Number(payload.totalPrice).toFixed(2)}</td></tr>
           <tr><td style="padding:6px 0; color:#6b7280;">Customer</td><td style="padding:6px 0;">${escapeHtml(payload.customerName || '—')}</td></tr>
@@ -356,6 +360,25 @@ export async function sendContactInquiryStaffEmail(payload: {
   });
 }
 
+/** Optional rows for customer booking lifecycle emails. */
+export function bookingLifecycleEmailExtrasFromBooking(booking: {
+  address: string;
+  city: string;
+  postalCode: string;
+  totalPrice: number;
+  durationMinutes: number;
+}): {
+  addressSummary: string;
+  totalPriceLabel: string;
+  durationMinutes: number;
+} {
+  return {
+    addressSummary: `${booking.address}, ${booking.city} ${booking.postalCode}`.trim(),
+    totalPriceLabel: `$${Number(booking.totalPrice).toFixed(2)}`,
+    durationMinutes: booking.durationMinutes,
+  };
+}
+
 export async function sendBookingLifecycleEmail(payload: {
   to: string;
   customerName?: string | null;
@@ -366,6 +389,9 @@ export async function sendBookingLifecycleEmail(payload: {
   status: 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
   cleanerName?: string | null;
   notes?: string | null;
+  addressSummary?: string | null;
+  totalPriceLabel?: string | null;
+  durationMinutes?: number | null;
 }): Promise<{ success: boolean; message: string }> {
   if (!payload.to) return { success: false, message: 'Missing customer email' };
   if (!smtpReady()) return { success: false, message: 'SMTP not configured' };
@@ -379,10 +405,29 @@ export async function sendBookingLifecycleEmail(payload: {
       : 'Booking Completed';
   const intro =
     payload.status === 'CONFIRMED'
-      ? 'Great news — your booking is confirmed.'
+      ? 'Your booking is confirmed. Below are the details for your records.'
       : payload.status === 'CANCELLED'
       ? 'Your booking has been cancelled.'
       : 'Your booking has been marked completed. Thank you for choosing us.';
+
+  const detailRows = [
+    payload.durationMinutes != null
+      ? `<tr><td style="padding:6px 0;color:#6b7280;">Duration</td><td style="padding:6px 0;">${payload.durationMinutes} minutes</td></tr>`
+      : '',
+    payload.addressSummary
+      ? `<tr><td style="padding:6px 0;vertical-align:top;color:#6b7280;">Location</td><td style="padding:6px 0;">${escapeHtml(payload.addressSummary)}</td></tr>`
+      : '',
+    payload.totalPriceLabel
+      ? `<tr><td style="padding:6px 0;color:#6b7280;">Total</td><td style="padding:6px 0;">${escapeHtml(payload.totalPriceLabel)}</td></tr>`
+      : '',
+  ].join('');
+
+  const thankYouBlock =
+    payload.status === 'CONFIRMED'
+      ? `<p style="margin-top:20px;color:#374151;">Thank you for choosing YXE Pristine Property Services. We look forward to serving you. If you have any questions, visit your dashboard or reply to this email.</p>`
+      : payload.status === 'COMPLETED'
+      ? `<p style="margin-top:20px;color:#374151;">Thank you again for your business.</p>`
+      : '';
 
   const html = `
     <!DOCTYPE html>
@@ -399,7 +444,8 @@ export async function sendBookingLifecycleEmail(payload: {
           <tr><td style="padding:6px 0;color:#6b7280;">Booking ID</td><td style="padding:6px 0;"><strong>${escapeHtml(payload.bookingId)}</strong></td></tr>
           <tr><td style="padding:6px 0;color:#6b7280;">Service</td><td style="padding:6px 0;">${escapeHtml(payload.serviceType)}</td></tr>
           <tr><td style="padding:6px 0;color:#6b7280;">Date</td><td style="padding:6px 0;">${escapeHtml(payload.date.toLocaleDateString('en-CA', { dateStyle: 'full', timeZone: 'America/Regina' }))}</td></tr>
-          <tr><td style="padding:6px 0;color:#6b7280;">Time</td><td style="padding:6px 0;">${escapeHtml(payload.time)}</td></tr>
+          <tr><td style="padding:6px 0;color:#6b7280;">Time</td><td style="padding:6px 0;">${escapeHtml(formatTime24hTo12h(payload.time))}</td></tr>
+          ${detailRows}
           ${
             payload.cleanerName
               ? `<tr><td style="padding:6px 0;color:#6b7280;">Cleaner</td><td style="padding:6px 0;">${escapeHtml(payload.cleanerName)}</td></tr>`
@@ -411,6 +457,7 @@ export async function sendBookingLifecycleEmail(payload: {
             ? `<p style="margin-top:12px;"><strong>Notes:</strong><br>${escapeHtml(payload.notes).replace(/\n/g, '<br>')}</p>`
             : ''
         }
+        ${thankYouBlock}
         <p style="margin-top:18px;"><a href="${escapeHtml(`${baseUrl}/dashboard`)}" style="background:#7c3aed;color:#fff;padding:10px 20px;text-decoration:none;border-radius:6px;display:inline-block;">View dashboard</a></p>
       </div>
     </body>

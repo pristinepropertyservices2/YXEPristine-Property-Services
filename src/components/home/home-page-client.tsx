@@ -307,7 +307,7 @@ export function HomePageClient() {
                   id="cta-after-compare"
                   variant="muted"
                   title="See the low-moisture difference"
-                  subtitle="Ask about weekend availability or bundle ducts + carpets for extra savings."
+                  subtitle="Bundle ducts + carpets for extra savings — book online 24/7."
                 >
                   {conversionCtas}
                 </CTASection>

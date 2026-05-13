@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { format } from 'date-fns';
+import { formatTime24hTo12h } from '@/lib/time-display';
 import { toast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -190,7 +191,9 @@ export default function AdminBookingsPage() {
                     <TableCell>{r.serviceType || '—'}</TableCell>
                     <TableCell>
                       {r.bookingDate ? format(new Date(r.bookingDate), 'MMM d, yyyy') : '—'}
-                      <div className="text-xs text-muted-foreground">{r.bookingTime || '—'}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {r.bookingTime ? formatTime24hTo12h(r.bookingTime) : '—'}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Badge className={statusTone[r.status]} variant="outline">{r.status.replace('_', ' ')}</Badge>
@@ -231,20 +234,50 @@ export default function AdminBookingsPage() {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell>
-                      <Select
-                        value={r.status}
-                        onValueChange={(v) => void patchBooking(r.id, { status: v }, `Booking marked ${v}`)}
-                        disabled={workingId === r.id}
-                      >
-                        <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="PENDING">Pending</SelectItem>
-                          <SelectItem value="CONFIRMED">Confirmed</SelectItem>
-                          <SelectItem value="COMPLETED">Completed</SelectItem>
-                          <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <TableCell className="min-w-[200px]">
+                      <div className="flex flex-col gap-2">
+                        {r.status === 'PENDING' && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            className="bg-purple-700 hover:bg-purple-800"
+                            disabled={workingId === r.id}
+                            onClick={() =>
+                              void patchBooking(
+                                r.id,
+                                { status: 'CONFIRMED' },
+                                'Booking confirmed. A confirmation email was sent to the customer if SMTP is configured.'
+                              )
+                            }
+                          >
+                            Confirm booking
+                          </Button>
+                        )}
+                        <Select
+                          value={r.status}
+                          onValueChange={(v) =>
+                            void patchBooking(
+                              r.id,
+                              { status: v },
+                              v === 'CONFIRMED'
+                                ? 'Booking confirmed. A confirmation email was sent to the customer if SMTP is configured.'
+                                : `Booking status set to ${v.replace('_', ' ')}`
+                            )
+                          }
+                          disabled={workingId === r.id}
+                        >
+                          <SelectTrigger className="w-40">
+                            <SelectValue placeholder="Set status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="PENDING">Pending</SelectItem>
+                            <SelectItem value="CONFIRMED">Confirmed</SelectItem>
+                            <SelectItem value="IN_PROGRESS">In progress</SelectItem>
+                            <SelectItem value="COMPLETED">Completed</SelectItem>
+                            <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

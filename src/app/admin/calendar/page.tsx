@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { format } from 'date-fns';
+import { formatTime24hTo12h } from '@/lib/time-display';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
@@ -65,7 +66,9 @@ export default function AdminCalendarPage() {
               <div key={b.id} className="flex items-center justify-between rounded border p-3 text-sm">
                 <div>
                   <p className="font-medium">{b.customerName || 'Customer'}</p>
-                  <p className="text-muted-foreground">{b.bookingTime || '—'} • {b.assignedCleanerRef?.name || 'Unassigned'}</p>
+                  <p className="text-muted-foreground">
+                    {b.bookingTime ? formatTime24hTo12h(b.bookingTime) : '—'} • {b.assignedCleanerRef?.name || 'Unassigned'}
+                  </p>
                 </div>
                 <Badge variant="outline">{b.status}</Badge>
               </div>

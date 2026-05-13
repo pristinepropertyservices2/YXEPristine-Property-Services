@@ -90,7 +90,7 @@ export default function ContactPage() {
               </div>
               <div>
                 <p className="font-medium">Working hours</p>
-                <p className="text-muted-foreground">Monday–Friday · 8:00 AM–5:00 PM</p>
+                <p className="text-muted-foreground">Open 24/7 — book online anytime</p>
                 <p className="text-muted-foreground">Saturday–Sunday · Closed</p>
               </div>
             </div>
