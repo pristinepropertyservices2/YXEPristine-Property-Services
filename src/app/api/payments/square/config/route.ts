@@ -35,7 +35,18 @@ export async function GET() {
   const environment = getSquareEnvironment();
   const formatError = validateSquareWebPaymentsClientIds({ applicationId, locationId, environment });
   if (formatError) {
-    return NextResponse.json({ error: formatError }, { status: 503 });
+    return NextResponse.json(
+      {
+        error: formatError,
+        environment,
+        applicationIdPrefix: applicationId.slice(0, 12),
+        hint:
+          environment === 'sandbox'
+            ? 'Add SQUARE_ENVIRONMENT=production to .env if you intend to use production keys.'
+            : undefined,
+      },
+      { status: 503 }
+    );
   }
 
   return NextResponse.json({

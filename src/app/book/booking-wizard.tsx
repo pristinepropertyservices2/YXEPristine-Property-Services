@@ -428,7 +428,7 @@ export function BookingWizard() {
             <div className="space-y-4">
               <p>
                 You will be redirected to pay <strong>${estimatedTotal.toFixed(2)} CAD</strong>{' '}
-                securely (demo mode if Stripe is not configured).
+                securely with Square.
               </p>
               <Button
                 className="w-full bg-purple-700 hover:bg-purple-800"

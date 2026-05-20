@@ -47,9 +47,11 @@ export function ServiceListingCard({ service, className }: ServiceListingCardPro
         ) : (
           <Image
             src={service.mediaSrc}
-            alt={service.name}
+            alt={`${service.name} in Saskatoon, SK — YXE Pristine Property Services`}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+            loading="lazy"
+            decoding="async"
             className="object-cover transition-[transform,filter] duration-700 ease-out group-hover:scale-[1.045] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
         )}

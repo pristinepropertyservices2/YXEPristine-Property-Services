@@ -2,8 +2,29 @@ const SQUARE_VERSION = '2024-04-17';
 
 export type SquarePublicEnvironment = 'sandbox' | 'production';
 
+/**
+ * Resolve sandbox vs production for API base URL and Web Payments script.
+ * Explicit SQUARE_ENVIRONMENT wins; otherwise infer from Application ID prefix.
+ */
 export function getSquareEnvironment(): SquarePublicEnvironment {
-  return process.env.SQUARE_ENVIRONMENT === 'production' ? 'production' : 'sandbox';
+  const raw = process.env.SQUARE_ENVIRONMENT?.trim().toLowerCase();
+  if (raw === 'production' || raw === 'prod' || raw === 'live') {
+    return 'production';
+  }
+  if (raw === 'sandbox' || raw === 'test') {
+    return 'sandbox';
+  }
+
+  const appId = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID?.trim();
+  if (appId?.startsWith('sandbox-')) {
+    return 'sandbox';
+  }
+  // Production Application IDs are typically sq0idb- / sq0idp- (no sandbox- prefix)
+  if (appId && /^sq0id[bp]-/i.test(appId)) {
+    return 'production';
+  }
+
+  return 'sandbox';
 }
 
 export function isSquareConfigured(): boolean {
@@ -15,13 +36,13 @@ export function isSquareConfigured(): boolean {
 }
 
 export function getSquareConnectBaseUrl(): string {
-  return process.env.SQUARE_ENVIRONMENT === 'production'
+  return getSquareEnvironment() === 'production'
     ? 'https://connect.squareup.com'
     : 'https://connect.squareupsandbox.com';
 }
 
 export function getSquarePublicScriptUrl(): string {
-  return process.env.SQUARE_ENVIRONMENT === 'production'
+  return getSquareEnvironment() === 'production'
     ? 'https://web.squarecdn.com/v1/square.js'
     : 'https://sandbox.web.squarecdn.com/v1/square.js';
 }
@@ -67,10 +88,18 @@ export function validateSquareWebPaymentsClientIds(opts: {
 
   if (environment === 'sandbox') {
     if (!applicationId.startsWith('sandbox-')) {
-      return 'For SQUARE_ENVIRONMENT=sandbox (default), NEXT_PUBLIC_SQUARE_APPLICATION_ID must be your Sandbox Application ID from the developer app — it starts with "sandbox-". A production Application ID will not work with the sandbox Web Payments script.';
+      const envVar = process.env.SQUARE_ENVIRONMENT?.trim() || '(not set — defaults to sandbox)';
+      return (
+        `Square is running in sandbox mode (SQUARE_ENVIRONMENT=${envVar}) but NEXT_PUBLIC_SQUARE_APPLICATION_ID looks like a production ID. ` +
+        'For live payments set SQUARE_ENVIRONMENT=production in .env, use Production credentials (Application ID, Access token, Location ID), then rebuild and restart PM2. ' +
+        'For testing use sandbox-* Application ID with sandbox access token and location.'
+      );
     }
   } else if (applicationId.startsWith('sandbox-')) {
-    return 'For SQUARE_ENVIRONMENT=production, use your Production Application ID (not a sandbox-* id) with https://web.squarecdn.com/v1/square.js.';
+    return (
+      'Square is in production mode but NEXT_PUBLIC_SQUARE_APPLICATION_ID is a sandbox-* id. ' +
+      'Set SQUARE_ENVIRONMENT=production and use your Production Application ID from Square Developer → Production → Credentials, then restart the server.'
+    );
   }
 
   return null;

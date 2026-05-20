@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { SITE_URL } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | YXE Pristine Property Services",
   description:
     "How YXE Pristine Property Services collects, uses, and protects your personal information when you use our website and services in Saskatoon and surrounding areas.",
+  alternates: { canonical: `${SITE_URL}/privacy` },
   openGraph: {
     title: "Privacy Policy | YXE Pristine Property Services",
     description:
       "Our commitment to protecting your privacy when you book cleaning services or use our website.",
-    url: "https://yxepristinepropertyservices.ca/privacy",
+    url: `${SITE_URL}/privacy`,
   },
 };
 

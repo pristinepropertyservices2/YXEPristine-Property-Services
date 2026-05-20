@@ -1,9 +1,23 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { Award, Check, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SITE_URL } from "@/lib/site-seo";
+
+export const metadata: Metadata = {
+  title: "About our Saskatoon cleaning team",
+  description:
+    "Locally owned, family-run YXE Pristine Property Services — eco-friendly carpet, duct, and specialty cleaning for Saskatoon homes and businesses.",
+  alternates: { canonical: `${SITE_URL}/about` },
+  openGraph: {
+    title: "About YXE Pristine",
+    url: `${SITE_URL}/about`,
+    description: "Meet the team behind Saskatoon's trusted low-moisture cleaning service.",
+  },
+};
 
 export default function AboutPage() {
   return (
@@ -21,15 +35,14 @@ export default function AboutPage() {
         </div>
 
         <div className="grid items-stretch gap-8 md:grid-cols-2">
-          <div className="relative overflow-hidden rounded-2xl border bg-black shadow-xl">
+          <div className="relative aspect-[3/2] overflow-hidden rounded-2xl border bg-black shadow-xl md:aspect-auto md:min-h-[320px]">
             <Image
               src="/1a4b07c0-2828-46a3-b082-e4c5e0bc9ded.png"
-              alt="Cleaning supplies in a white bucket"
-              width={1200}
-              height={800}
+              alt="Eco-friendly cleaning supplies used by YXE Pristine in Saskatoon homes and businesses"
+              fill
               loading="lazy"
               sizes="(max-width: 768px) 100vw, 50vw"
-              className="h-full min-h-[320px] w-full object-cover"
+              className="object-cover"
             />
             <div className="absolute inset-0 bg-black/30" />
             <div className="absolute bottom-4 left-4 rounded-xl bg-white/90 px-4 py-2 text-sm font-medium text-gray-900">

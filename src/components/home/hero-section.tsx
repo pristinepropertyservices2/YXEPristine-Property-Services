@@ -20,16 +20,20 @@ export function HeroSection({ typedLocation, typingCursorVisible }: HeroSectionP
       id="home"
       className="relative isolate min-h-[min(88vh,46rem)] pb-14 pt-24 sm:min-h-[min(90vh,52rem)] sm:pb-16 sm:pt-28 md:min-h-[min(85vh,44rem)] md:pb-20 md:pt-36 lg:pb-24 lg:pt-40"
     >
-      <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden>
-        <Image
-          src={HERO_BACKGROUND_PATH}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          decoding="async"
-          className="object-cover object-center brightness-110"
-        />
+      <div className="absolute inset-0 z-0 min-h-[min(88vh,46rem)] overflow-hidden" aria-hidden>
+        <div className="relative h-full min-h-[22rem] w-full sm:min-h-[26rem] md:min-h-[28rem]">
+          <Image
+            src={HERO_BACKGROUND_PATH}
+            alt="Professional low-moisture carpet and upholstery cleaning in Saskatoon — YXE Pristine Property Services"
+            fill
+            priority
+            fetchPriority="high"
+            sizes="100vw"
+            quality={68}
+            decoding="async"
+            className="object-cover object-center brightness-110"
+          />
+        </div>
       </div>
       <div
         className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/45 via-black/50 to-neutral-950/75"
@@ -69,7 +73,8 @@ export function HeroSection({ typedLocation, typingCursorVisible }: HeroSectionP
           </p>
 
           <p className="mt-5 max-w-[42ch] text-[1.0625rem] leading-relaxed text-white/90 sm:max-w-[46ch] sm:text-lg md:max-w-[52ch] md:text-[1.125rem] md:leading-[1.6]">
-            Book eco-friendly carpet, ducts, upholstery, tile &amp; more. Clear pricing. Professional crew.
+            Book eco-friendly carpet, ducts, upholstery, tile &amp; more across Saskatoon, Martensville, and Warman.
+            Clear pricing. Professional crew.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">

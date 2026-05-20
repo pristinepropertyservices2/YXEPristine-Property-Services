@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { SITE_URL } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
   title: "Terms of Service | YXE Pristine Property Services",
   description:
     "Terms and conditions for using the YXE Pristine Property Services website and booking residential and commercial cleaning in Saskatoon and surrounding areas.",
+  alternates: { canonical: `${SITE_URL}/terms` },
   openGraph: {
     title: "Terms of Service | YXE Pristine Property Services",
     description:
       "Terms governing use of our site, quotes, bookings, payments, cancellations, and limitations of liability.",
-    url: "https://yxepristinepropertyservices.ca/terms",
+    url: `${SITE_URL}/terms`,
   },
 };
 

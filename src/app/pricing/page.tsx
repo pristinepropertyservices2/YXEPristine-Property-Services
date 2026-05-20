@@ -1,9 +1,23 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Check, ShieldCheck, Sparkles, Clock3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { pricingPlans } from "@/lib/marketing-content";
+import { SITE_URL } from "@/lib/site-seo";
+
+export const metadata: Metadata = {
+  title: "Pricing & service plans",
+  description:
+    "Flexible one-time and recurring cleaning plans for Saskatoon. No hidden fees — compare plans and book online.",
+  alternates: { canonical: `${SITE_URL}/pricing` },
+  openGraph: {
+    title: "Pricing | YXE Pristine",
+    url: `${SITE_URL}/pricing`,
+    description: "Transparent pricing for residential and commercial cleaning in Saskatoon.",
+  },
+};
 
 export default function PricingPage() {
   return (

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -5,7 +6,10 @@ import { ArrowRight, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { JsonLd } from "@/components/seo/json-ld";
 import { serviceDetails, serviceDetailMap } from "@/lib/service-details";
+import { SITE_URL } from "@/lib/site-seo";
+import { faqPageJsonLd, serviceOfferJsonLd } from "@/lib/structured-data";
 import { cn } from "@/lib/utils";
 
 type PageProps = {
@@ -14,6 +18,29 @@ type PageProps = {
 
 export function generateStaticParams() {
   return serviceDetails.map((s) => ({ serviceId: s.id }));
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { serviceId } = await params;
+  const service = serviceDetailMap[serviceId as keyof typeof serviceDetailMap];
+  if (!service) {
+    return { title: "Service not found" };
+  }
+  const url = `${SITE_URL}/services/${service.id}`;
+  const title = `${service.name} in Saskatoon, SK | Starting ${service.startingPrice}`;
+  return {
+    title,
+    description: `${service.shortDescription} Serving Saskatoon, Martensville & Warman. ${service.includes}. Book online.`,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description: service.shortDescription,
+      url,
+      type: "website",
+      locale: "en_CA",
+      images: [{ url: `${SITE_URL}${service.heroImage}`, alt: service.name }],
+    },
+  };
 }
 
 const comparisonContent: Partial<
@@ -128,9 +155,12 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   if (!service) notFound();
   const comparison = comparisonContent[service.id];
   const faqs = serviceFaqs[service.id] ?? defaultFaqs;
+  const pageUrl = `${SITE_URL}/services/${service.id}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-neutral-50/95 via-white to-purple-50/25 pb-16 pt-10 md:pb-24 md:pt-12">
+      <JsonLd data={serviceOfferJsonLd(service)} />
+      <JsonLd data={faqPageJsonLd(faqs, pageUrl)} />
       <div className="container mx-auto px-4">
         {/* Hero */}
         <div className="grid items-stretch gap-8 lg:grid-cols-12 lg:gap-10">
@@ -144,9 +174,11 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             >
               <Image
                 src={service.heroImage}
-                alt={service.name}
+                alt={`${service.name} in Saskatoon — YXE Pristine Property Services`}
                 fill
                 priority
+                fetchPriority="high"
+                quality={72}
                 sizes="(max-width: 1024px) 100vw, 58vw"
                 className="object-cover"
               />

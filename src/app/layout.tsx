@@ -7,6 +7,7 @@ import { SiteNavbar } from "@/components/site-navbar";
 import { ScrollToTopButton } from "@/components/scroll-to-top-button";
 import { Toaster } from "@/components/ui/toaster";
 import { authOptions } from "@/lib/auth-options";
+import { BUSINESS, DEFAULT_OG_IMAGE, SITE_URL } from "@/lib/site-seo";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,27 +20,45 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "YXE Pristine Property Services | Professional Cleaning in Saskatoon",
-  description: "YXE Pristine Property Services - Professional, eco-friendly cleaning services in Saskatoon. Carpet cleaning, upholstery, air duct, tile & grout, and more. Clean. Protect. Maintain.",
-  keywords: ["cleaning services", "Saskatoon", "carpet cleaning", "upholstery cleaning", "air duct cleaning", "eco-friendly cleaning", "YXE Pristine"],
-  authors: [{ name: "YXE Pristine Property Services" }],
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${BUSINESS.name} | Professional Cleaning in Saskatoon, SK`,
+    template: `%s | ${BUSINESS.name}`,
+  },
+  description: BUSINESS.description,
+  keywords: [
+    "cleaning services Saskatoon",
+    "carpet cleaning Saskatoon",
+    "upholstery cleaning",
+    "air duct cleaning SK",
+    "tile grout cleaning",
+    "dryer vent cleaning",
+    "post construction cleaning",
+    "YXE Pristine",
+  ],
+  authors: [{ name: BUSINESS.name, url: SITE_URL }],
   icons: {
     icon: "/images/logo.png",
     shortcut: "/images/logo.png",
     apple: "/images/logo.png",
   },
   openGraph: {
-    title: "YXE Pristine Property Services",
-    description: "Professional, eco-friendly cleaning services in Saskatoon and surrounding areas.",
-    url: "https://yxepristinepropertyservices.ca",
-    siteName: "YXE Pristine Property Services",
+    title: BUSINESS.name,
+    description: BUSINESS.description,
+    url: SITE_URL,
+    siteName: BUSINESS.name,
+    locale: "en_CA",
     type: "website",
+    images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630, alt: BUSINESS.name }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "YXE Pristine Property Services",
-    description: "Professional, eco-friendly cleaning services in Saskatoon.",
+    title: BUSINESS.name,
+    description: BUSINESS.description,
+    images: [DEFAULT_OG_IMAGE],
   },
+  robots: { index: true, follow: true },
+  alternates: { canonical: SITE_URL },
 };
 
 export default async function RootLayout({
