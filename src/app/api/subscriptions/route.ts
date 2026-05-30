@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
 import { db } from '@/lib/db';
+import { ensureDefaultPlans } from '@/lib/plans';
 
 // GET - List user's subscriptions
 export async function GET(request: NextRequest) {
@@ -30,20 +33,26 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Create a new subscription
+// POST - Create a new subscription after plan payment
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { userId, planId, paymentId } = body;
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    if (!userId || !planId) {
+    const body = await request.json();
+    const { planId, paymentId } = body as { planId?: string; paymentId?: string };
+
+    if (!planId) {
       return NextResponse.json(
-        { error: 'User ID and Plan ID required' },
+        { error: 'Plan ID required' },
         { status: 400 }
       );
     }
 
-    // Get the plan details
+    await ensureDefaultPlans();
+
     const plan = await db.plan.findUnique({
       where: { id: planId },
     });
@@ -55,18 +64,47 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if payment is completed
-    if (paymentId) {
+    if (plan.type !== 'ONE_TIME' && plan.price > 0) {
+      if (!paymentId) {
+        return NextResponse.json(
+          { error: 'Payment ID required for paid plans' },
+          { status: 400 }
+        );
+      }
+
       const payment = await db.payment.findUnique({
         where: { id: paymentId },
       });
 
-      if (!payment || payment.status !== 'COMPLETED') {
+      if (!payment || payment.userId !== session.user.id) {
+        return NextResponse.json(
+          { error: 'Payment not found' },
+          { status: 404 }
+        );
+      }
+
+      if (payment.status !== 'COMPLETED') {
         return NextResponse.json(
           { error: 'Payment not completed' },
           { status: 400 }
         );
       }
+    }
+
+    const existingActive = await db.subscription.findFirst({
+      where: {
+        userId: session.user.id,
+        planId: plan.id,
+        status: 'ACTIVE',
+      },
+    });
+
+    if (existingActive) {
+      return NextResponse.json({
+        success: true,
+        subscription: existingActive,
+        alreadyActive: true,
+      });
     }
 
     // Calculate subscription end date based on plan type
@@ -81,18 +119,17 @@ export async function POST(request: NextRequest) {
       endDate.setMonth(endDate.getMonth() + 1);
     }
 
-    // Create subscription
     const subscription = await db.subscription.create({
       data: {
-        userId,
+        userId: session.user.id,
         planId,
         status: 'ACTIVE',
         startDate,
         endDate,
       },
+      include: { plan: true },
     });
 
-    // Update payment with subscription ID if provided
     if (paymentId) {
       await db.payment.update({
         where: { id: paymentId },

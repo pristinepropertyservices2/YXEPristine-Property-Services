@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { DEFAULT_PLANS } from '../src/lib/plans';
 
 const prisma = new PrismaClient();
 
@@ -167,6 +168,30 @@ async function main() {
 
   console.log('Seed: admin user admin@yxepristine.local (password: Admin12345)');
   console.log(`Seed: ${services.length} services with add-ons`);
+
+  for (const plan of DEFAULT_PLANS) {
+    await prisma.plan.upsert({
+      where: { id: plan.id },
+      create: {
+        id: plan.id,
+        name: plan.name,
+        type: plan.type,
+        price: plan.price,
+        discount: plan.discount,
+        features: JSON.stringify(plan.features),
+        isActive: true,
+      },
+      update: {
+        name: plan.name,
+        type: plan.type,
+        price: plan.price,
+        discount: plan.discount,
+        features: JSON.stringify(plan.features),
+        isActive: true,
+      },
+    });
+  }
+  console.log(`Seed: ${DEFAULT_PLANS.length} subscription plans`);
 }
 
 main()

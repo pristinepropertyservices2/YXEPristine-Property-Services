@@ -25,6 +25,7 @@ interface PaymentModalProps {
     id: string;
     name: string;
     type: string;
+    price: number;
     discount: number;
     description?: string;
   } | null;
@@ -44,7 +45,7 @@ export function PaymentModal({ isOpen, onClose, plan, onSuccess }: PaymentModalP
     postalCode: '',
   });
 
-  const subscriptionPrice = plan?.type === 'WEEKLY' ? 29.99 : plan?.type === 'MONTHLY' ? 19.99 : 0;
+  const subscriptionPrice = plan?.price ?? 0;
 
   const resetModal = useCallback(() => {
     setPaymentStep('details');
@@ -76,7 +77,7 @@ export function PaymentModal({ isOpen, onClose, plan, onSuccess }: PaymentModalP
     setPaymentStep('payment');
   };
 
-  const handlePlanPaid = async ({ paymentId: _paymentId }: { paymentId: string }) => {
+  const handlePlanPaid = async ({ paymentId }: { paymentId: string }) => {
     if (!plan || !session?.user?.id) return;
     setPaymentStep('processing');
     try {
@@ -84,7 +85,6 @@ export function PaymentModal({ isOpen, onClose, plan, onSuccess }: PaymentModalP
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: session.user.id,
           planId: plan.id,
           paymentId,
         }),

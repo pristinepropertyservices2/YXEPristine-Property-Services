@@ -14,6 +14,7 @@ export type HomePlan = {
   id: string;
   name: string;
   type: string;
+  price: number;
   discount: number;
   description: string;
   features: string[];
@@ -157,6 +158,7 @@ export const homePlans: HomePlan[] = [
     id: "one-time",
     name: "One-Time Service",
     type: "ONE_TIME",
+    price: 0,
     discount: 0,
     description: "Perfect for occasional deep cleaning needs",
     features: ["Flexible scheduling", "No commitment", "All services available", "Single payment"],
@@ -165,6 +167,7 @@ export const homePlans: HomePlan[] = [
     id: "weekly",
     name: "Weekly Plan",
     type: "WEEKLY",
+    price: 29.99,
     discount: 15,
     description: "Save 15% with weekly recurring services",
     features: [
@@ -179,6 +182,7 @@ export const homePlans: HomePlan[] = [
     id: "monthly",
     name: "Monthly Plan",
     type: "MONTHLY",
+    price: 19.99,
     discount: 10,
     description: "Save 10% with monthly recurring services",
     features: ["10% discount on all services", "Flexible scheduling", "Same cleaner option", "Cancel anytime"],

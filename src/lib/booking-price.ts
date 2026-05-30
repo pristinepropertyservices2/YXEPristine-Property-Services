@@ -17,6 +17,13 @@ export function calculateBookingTotal(
   return Math.round((scaledService + extras) * 100) / 100;
 }
 
+/** Apply subscription or promo percent off (e.g. 15 = 15% off). */
+export function applyPercentDiscount(amount: number, discountPercent: number): number {
+  if (discountPercent <= 0) return amount;
+  const discounted = amount * (1 - discountPercent / 100);
+  return Math.round(discounted * 100) / 100;
+}
+
 export function parseAddOnsJson(raw: string | null | undefined): AddOnLine[] {
   if (!raw) return [];
   try {

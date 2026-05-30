@@ -21,7 +21,11 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
-import { calculateBookingTotal, type AddOnLine } from '@/lib/booking-price';
+import {
+  applyPercentDiscount,
+  calculateBookingTotal,
+  type AddOnLine,
+} from '@/lib/booking-price';
 import { formatTime24hTo12h } from '@/lib/time-display';
 import { toast } from '@/hooks/use-toast';
 
@@ -67,6 +71,27 @@ export function BookingWizard() {
   const [durationMinutes, setDurationMinutes] = useState(90);
   const [selectedAddOnIds, setSelectedAddOnIds] = useState<Set<string>>(new Set());
   const [submitting, setSubmitting] = useState(false);
+  const [planDiscount, setPlanDiscount] = useState<{
+    planName: string;
+    discountPercent: number;
+  } | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/subscriptions/active');
+        const data = await res.json();
+        if (res.ok && data.discount?.discountPercent > 0) {
+          setPlanDiscount({
+            planName: data.discount.planName,
+            discountPercent: data.discount.discountPercent,
+          });
+        }
+      } catch {
+        /* guest or no active plan */
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -115,7 +140,7 @@ export function BookingWizard() {
       .map((a) => ({ id: a.id, name: a.name, price: a.price }));
   }, [detail, selectedAddOnIds]);
 
-  const estimatedTotal = useMemo(() => {
+  const subtotal = useMemo(() => {
     if (!detail) return 0;
     return calculateBookingTotal(
       detail.price,
@@ -124,6 +149,11 @@ export function BookingWizard() {
       addOnLines
     );
   }, [detail, durationMinutes, addOnLines]);
+
+  const estimatedTotal = useMemo(() => {
+    if (!planDiscount) return subtotal;
+    return applyPercentDiscount(subtotal, planDiscount.discountPercent);
+  }, [subtotal, planDiscount]);
 
   const toggleAddOn = (id: string) => {
     setSelectedAddOnIds((prev) => {
@@ -415,9 +445,26 @@ export function BookingWizard() {
                   </ul>
                 </div>
               )}
-              <p className="text-lg font-semibold text-purple-800">
-                Estimated total: ${estimatedTotal.toFixed(2)} CAD
-              </p>
+              {planDiscount ? (
+                <div className="space-y-1 rounded-lg border border-green-200 bg-green-50 p-3">
+                  <p>
+                    <strong>Subtotal:</strong> ${subtotal.toFixed(2)} CAD
+                  </p>
+                  <p className="text-green-800">
+                    <strong>
+                      {planDiscount.planName} ({planDiscount.discountPercent}% off):
+                    </strong>{' '}
+                    −${(subtotal - estimatedTotal).toFixed(2)} CAD
+                  </p>
+                  <p className="text-lg font-semibold text-purple-800">
+                    Estimated total: ${estimatedTotal.toFixed(2)} CAD
+                  </p>
+                </div>
+              ) : (
+                <p className="text-lg font-semibold text-purple-800">
+                  Estimated total: ${estimatedTotal.toFixed(2)} CAD
+                </p>
+              )}
               <p className="text-xs text-muted-foreground">
                 Final amount is confirmed on the server when you create the booking.
               </p>
@@ -426,10 +473,21 @@ export function BookingWizard() {
 
           {step === 5 && detail && date && (
             <div className="space-y-4">
-              <p>
-                You will be redirected to pay <strong>${estimatedTotal.toFixed(2)} CAD</strong>{' '}
-                securely with Square.
-              </p>
+              {planDiscount ? (
+                <p>
+                  Subtotal ${subtotal.toFixed(2)} CAD —{' '}
+                  <strong>
+                    {planDiscount.discountPercent}% {planDiscount.planName} discount
+                  </strong>{' '}
+                  applied. You will pay <strong>${estimatedTotal.toFixed(2)} CAD</strong>{' '}
+                  securely with Square.
+                </p>
+              ) : (
+                <p>
+                  You will be redirected to pay <strong>${estimatedTotal.toFixed(2)} CAD</strong>{' '}
+                  securely with Square.
+                </p>
+              )}
               <Button
                 className="w-full bg-purple-700 hover:bg-purple-800"
                 size="lg"

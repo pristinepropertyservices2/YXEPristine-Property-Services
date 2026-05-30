@@ -2,8 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { db } from '@/lib/db';
-import { calculateBookingTotal, type AddOnLine } from '@/lib/booking-price';
+import {
+  applyPercentDiscount,
+  calculateBookingTotal,
+  type AddOnLine,
+} from '@/lib/booking-price';
 import { sendBookingCreatedStaffEmail } from '@/lib/email';
+import { getActiveSubscriptionDiscount } from '@/lib/subscription-discount';
 
 function formatAddOnsSummary(addOnsJson: string | null): string | null {
   if (!addOnsJson) return null;
@@ -120,12 +125,17 @@ export async function POST(request: NextRequest) {
       .filter((a) => idSet.has(a.id))
       .map((a) => ({ id: a.id, name: a.name, price: a.price }));
 
-    const totalPrice = calculateBookingTotal(
+    const subtotal = calculateBookingTotal(
       service.price,
       service.duration,
       duration,
       selectedAddOns
     );
+
+    const activeDiscount = await getActiveSubscriptionDiscount(session.user.id);
+    const totalPrice = activeDiscount
+      ? applyPercentDiscount(subtotal, activeDiscount.discountPercent)
+      : subtotal;
 
     const addOnsJson =
       selectedAddOns.length > 0 ? JSON.stringify(selectedAddOns) : null;
@@ -134,6 +144,7 @@ export async function POST(request: NextRequest) {
       data: {
         userId: session.user.id,
         serviceId: service.id,
+        ...(activeDiscount ? { planId: activeDiscount.planId } : {}),
         date: new Date(date),
         time,
         address,
@@ -179,7 +190,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       booking,
-      message: 'Booking created. Proceed to payment.',
+      pricing: activeDiscount
+        ? {
+            subtotal,
+            discountPercent: activeDiscount.discountPercent,
+            planName: activeDiscount.planName,
+            totalPrice,
+          }
+        : { subtotal, totalPrice },
+      message: activeDiscount
+        ? `Booking created with ${activeDiscount.discountPercent}% ${activeDiscount.planName} discount. Proceed to payment.`
+        : 'Booking created. Proceed to payment.',
     });
   } catch (error) {
     console.error('Error creating booking:', error);

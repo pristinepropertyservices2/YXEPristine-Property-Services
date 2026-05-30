@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { db } from '@/lib/db';
 import { getSquareLocationId, isSquareConfigured } from '@/lib/square-api';
+import { ensureDefaultPlans } from '@/lib/plans';
 
 /**
  * Create a pending Payment row for Square (booking checkout or logged-in plan purchase).
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'amount and planId are required' }, { status: 400 });
     }
 
+    await ensureDefaultPlans();
     const plan = await db.plan.findUnique({ where: { id: planId } });
     if (!plan) {
       return NextResponse.json({ error: 'Plan not found' }, { status: 404 });
@@ -90,7 +92,7 @@ export async function POST(request: NextRequest) {
     const payment = await db.payment.create({
       data: {
         userId: session.user.id,
-        amount,
+        amount: plan.price > 0 ? plan.price : amount,
         currency: 'CAD',
         status: 'PENDING',
         method: 'SQUARE',
@@ -100,7 +102,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       paymentId: payment.id,
-      amountCents: Math.round(amount * 100),
+      amountCents: Math.round(payment.amount * 100),
       currency: 'CAD',
       locationId,
     });

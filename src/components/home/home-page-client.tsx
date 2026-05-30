@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback, type FormEvent } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
@@ -89,6 +90,7 @@ function useHeroTypewriter() {
 }
 
 export function HomePageClient() {
+  const router = useRouter();
   const { typedLocation, typingCursorVisible } = useHeroTypewriter();
 
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -253,10 +255,17 @@ export function HomePageClient() {
     }
   };
 
-  const handleSelectPlan = useCallback((plan: HomePlan) => {
-    setSelectedPlan(plan);
-    setIsPaymentModalOpen(true);
-  }, []);
+  const handleSelectPlan = useCallback(
+    (plan: HomePlan) => {
+      if (plan.type === "ONE_TIME") {
+        router.push("/book");
+        return;
+      }
+      setSelectedPlan(plan);
+      setIsPaymentModalOpen(true);
+    },
+    [router]
+  );
 
   const conversionCtas = (
     <>
