@@ -75,7 +75,7 @@ export function SiteNavbar() {
               alt="YXE Pristine Property Services"
               width={2638}
               height={1089}
-              className="h-16 w-auto md:h-[4.75rem] lg:h-20"
+              className="h-[4.5rem] w-auto md:h-[5.25rem] lg:h-[5.75rem]"
               priority
               quality={75}
               sizes="(max-width: 768px) 260px, 300px"
@@ -343,7 +343,7 @@ export function SiteNavbar() {
         </nav>
       </header>
       {!isHome ? (
-        <div className="h-[5.5rem] shrink-0 md:h-[6rem] lg:h-[6.25rem]" aria-hidden />
+        <div className="h-[6rem] shrink-0 md:h-[6.75rem] lg:h-[7rem]" aria-hidden />
       ) : null}
     </>
   );

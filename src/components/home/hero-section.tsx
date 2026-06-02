@@ -54,9 +54,9 @@ export function HeroSection({ typedLocation, typingCursorVisible }: HeroSectionP
             <span className="block text-white">
               Cleaner, healthier surfaces without harsh chemicals.
             </span>
-            <span className="mt-2 block max-w-full sm:mt-2.5 sm:overflow-x-auto sm:whitespace-nowrap sm:[-ms-overflow-style:none] sm:[scrollbar-width:none]">
+            <span className="mt-2 block max-w-full pb-1 sm:mt-2.5 sm:overflow-x-auto sm:whitespace-nowrap sm:[-ms-overflow-style:none] sm:[scrollbar-width:none]">
               <span className="text-white/95">Serving </span>
-              <span className="inline-flex min-w-[8.5ch] items-baseline font-bold text-amber-400 drop-shadow-sm sm:min-w-[10.75ch] sm:whitespace-nowrap">
+              <span className="inline-flex min-w-[8.5ch] items-baseline leading-[1.2] font-bold text-amber-400 drop-shadow-sm sm:min-w-[10.75ch] sm:whitespace-nowrap">
                 {typedLocation || "\u00A0"}
                 {typingCursorVisible ? (
                   <span
@@ -73,7 +73,7 @@ export function HeroSection({ typedLocation, typingCursorVisible }: HeroSectionP
           </p>
 
           <p className="mt-5 max-w-[42ch] text-[1.0625rem] leading-relaxed text-white/90 sm:max-w-[46ch] sm:text-lg md:max-w-[52ch] md:text-[1.125rem] md:leading-[1.6]">
-            Book eco-friendly carpet, ducts, upholstery, tile &amp; more across Saskatoon, Martensville, and Warman.
+            Book eco-friendly carpet, ducts, upholstery, tile &amp; more across Saskatoon and surrounding towns.
             Clear pricing. Professional crew.
           </p>
 

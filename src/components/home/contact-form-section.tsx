@@ -85,7 +85,7 @@ export const ContactFormSection = memo(function ContactFormSection({
                 </div>
                 <div>
                   <p className="text-base font-semibold text-gray-900">Hours</p>
-                  <p className="mt-1 text-base leading-relaxed text-gray-600">Open 24 hours a day, 7 days a week</p>
+                  <p className="mt-1 text-base leading-relaxed text-gray-600">Mon - Friday: 8:30 to 5:30pm</p>
                   <p className="text-base leading-relaxed text-gray-600">Saturday & Sunday: Closed</p>
                 </div>
               </div>
