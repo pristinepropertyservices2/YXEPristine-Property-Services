@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useCallback, type FormEvent } from "react";
+import { useState, useCallback, type FormEvent } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -11,7 +11,6 @@ import {
   homePlans,
   homeTestimonials,
   homeBookingTimeSlots,
-  HERO_LOCATION,
   HOME_PHONE_TEL,
   type HomeService,
   type HomePlan,
@@ -37,62 +36,8 @@ const PaymentModal = dynamic(
   { ssr: false }
 );
 
-function useHeroTypewriter() {
-  const [typedLocation, setTypedLocation] = useState("");
-  const [typingCursorVisible, setTypingCursorVisible] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    let sleepHandle: number | undefined;
-    const word = HERO_LOCATION;
-    const typeMs = 95;
-    const pauseAtFullMs = 2200;
-    const eraseMs = 55;
-    const pauseEmptyMs = 600;
-
-    const sleep = (ms: number) =>
-      new Promise<void>((resolve) => {
-        sleepHandle = window.setTimeout(() => {
-          sleepHandle = undefined;
-          resolve();
-        }, ms);
-      });
-
-    void (async () => {
-      setTypingCursorVisible(true);
-      while (!cancelled) {
-        for (let i = 1; i <= word.length; i++) {
-          if (cancelled) return;
-          setTypedLocation(word.slice(0, i));
-          await sleep(typeMs);
-        }
-        if (cancelled) return;
-        await sleep(pauseAtFullMs);
-        if (cancelled) return;
-        for (let j = word.length - 1; j >= 0; j--) {
-          if (cancelled) return;
-          setTypedLocation(word.slice(0, j));
-          await sleep(eraseMs);
-        }
-        if (cancelled) return;
-        setTypedLocation("");
-        await sleep(pauseEmptyMs);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-      if (sleepHandle !== undefined) window.clearTimeout(sleepHandle);
-    };
-  }, []);
-
-  return { typedLocation, typingCursorVisible };
-}
-
 export function HomePageClient() {
   const router = useRouter();
-  const { typedLocation, typingCursorVisible } = useHeroTypewriter();
-
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -282,7 +227,7 @@ export function HomePageClient() {
   return (
     <div className="flex min-h-screen flex-col pb-[5.25rem] md:pb-0">
       <main className="flex-1">
-        <HeroSection typedLocation={typedLocation} typingCursorVisible={typingCursorVisible} />
+        <HeroSection />
         <WhyChooseUs />
 
         <section id="services" className={cn("bg-neutral-50", SECTION_Y)}>

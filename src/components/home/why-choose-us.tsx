@@ -34,10 +34,15 @@ export const WhyChooseUs = memo(function WhyChooseUs() {
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-3xl text-center md:mb-10">
           <h2 id="why-choose-heading" className={cn(SECTION_H2, "text-neutral-900")}>
-            Why choose us
+            Our Promise
           </h2>
           <p className="mt-3 text-pretty text-neutral-600 text-base leading-relaxed md:text-lg">
-            We focus on safer chemistry, faster dry times, and consistent results—so you spend less time worrying and more time enjoying your space.
+            Serving Saskatoon and surrounding communities, YXE Pristine Property Services is committed to
+            delivering dependable, high-quality cleaning completed properly, on time, and without
+            compromise. Our team goes the extra mile to earn your trust and maintain our reputation for
+            exceptional service. We use effective, eco-friendly cleaning products to create cleaner, healthier
+            spaces for businesses and homes. The quality of our work speaks for itself, and the loyalty of
+            our returning clients confirms it.
           </p>
         </div>
         <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">

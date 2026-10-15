@@ -9,12 +9,7 @@ import { Star } from "lucide-react";
 const HERO_BACKGROUND_PATH =
   "/" + encodeURIComponent("NEW WEBSITE HOME PAGE IMAGE e.png");
 
-type HeroSectionProps = {
-  typedLocation: string;
-  typingCursorVisible: boolean;
-};
-
-export function HeroSection({ typedLocation, typingCursorVisible }: HeroSectionProps) {
+export function HeroSection() {
   return (
     <section
       id="home"
@@ -47,34 +42,13 @@ export function HeroSection({ typedLocation, typingCursorVisible }: HeroSectionP
             Insured · Eco-friendly · Family-owned · Saskatoon-based
           </Badge>
 
-          <h1
-            className="font-bold leading-[1.1] tracking-tight text-[1.875rem] text-white sm:text-[2.15rem] md:text-[2.625rem] lg:text-[min(3.75rem,6.5vw)]"
-            aria-label={`Cleaner, healthier surfaces without harsh chemicals. Serving ${typedLocation}.`}
-          >
-            <span className="block text-white">
-              Cleaner, healthier surfaces without harsh chemicals.
-            </span>
-            <span className="mt-2 block max-w-full pb-1 sm:mt-2.5 sm:overflow-x-auto sm:whitespace-nowrap sm:[-ms-overflow-style:none] sm:[scrollbar-width:none]">
-              <span className="text-white/95">Serving </span>
-              <span className="inline-flex min-w-[8.5ch] items-baseline leading-[1.2] font-bold text-amber-400 drop-shadow-sm sm:min-w-[10.75ch] sm:whitespace-nowrap">
-                {typedLocation || "\u00A0"}
-                {typingCursorVisible ? (
-                  <span
-                    aria-hidden
-                    className="ml-1 inline-block h-[0.9em] w-0.5 shrink-0 translate-y-0.5 animate-pulse bg-amber-300 md:ml-1.5"
-                  />
-                ) : null}
-              </span>
-            </span>
+          <h1 className="font-bold leading-[1.15] tracking-tight text-[1.875rem] text-white sm:text-[2.15rem] md:text-[2.625rem] lg:text-[min(3.5rem,6vw)]">
+            Commercial and Residential Spaces. Pristine Results.
           </h1>
 
-          <p className="mt-4 text-[0.9375rem] font-medium text-amber-200/95 sm:text-base md:mt-5">
-            Trusted by 500+ Saskatoon-area households—and booking fast for same-week visits.
-          </p>
-
-          <p className="mt-5 max-w-[42ch] text-[1.0625rem] leading-relaxed text-white/90 sm:max-w-[46ch] sm:text-lg md:max-w-[52ch] md:text-[1.125rem] md:leading-[1.6]">
-            Book eco-friendly carpet, ducts, upholstery, tile &amp; more across Saskatoon and surrounding towns.
-            Clear pricing. Professional crew.
+          <p className="mt-5 max-w-[42ch] text-[1.0625rem] leading-relaxed text-white/90 sm:max-w-[48ch] sm:text-lg md:mt-6 md:max-w-[52ch] md:text-[1.125rem] md:leading-[1.6]">
+            Professional post-construction, commercial office, and residential cleaning you can depend on
+            serving businesses, contractors, property managers, and homeowners throughout Saskatoon.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">

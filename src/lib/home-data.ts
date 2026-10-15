@@ -30,8 +30,6 @@ export type HomeTestimonial = {
   initials: string;
 };
 
-export const HERO_LOCATION = "Saskatoon";
-
 export const HOME_PHONE_DISPLAY = "639-471-3393";
 export const HOME_PHONE_TEL = "tel:+16394713393";
 
