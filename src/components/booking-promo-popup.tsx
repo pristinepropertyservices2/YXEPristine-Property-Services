@@ -14,54 +14,38 @@ import { HOME_PHONE_DISPLAY, HOME_PHONE_TEL } from "@/lib/home-data";
 import { HOUSECALL_PRO_BOOKING_URL, openHousecallBooking } from "@/lib/housecall-pro";
 import { cn } from "@/lib/utils";
 
-const STORAGE_KEY = "yxe-booking-promo-dismissed";
-const SHOW_DELAY_MS = 1800;
-
-/** Paths where the promo popup should not appear */
-const SKIP_PREFIXES = ["/book", "/auth", "/admin", "/dashboard", "/reset-password", "/forgot-password"];
+const SHOW_DELAY_MS = 1500;
 
 export function BookingPromoPopup() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (SKIP_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+    // Show on the homepage (including full refresh)
+    if (pathname !== "/") {
       setOpen(false);
       return;
-    }
-
-    try {
-      if (sessionStorage.getItem(STORAGE_KEY) === "1") return;
-    } catch {
-      /* ignore */
     }
 
     const timer = window.setTimeout(() => setOpen(true), SHOW_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, [pathname]);
 
-  const handleOpenChange = (next: boolean) => {
-    setOpen(next);
-    if (!next) {
-      try {
-        sessionStorage.setItem(STORAGE_KEY, "1");
-      } catch {
-        /* ignore */
-      }
-    }
-  };
-
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
         showCloseButton
-        className="max-w-[min(100%-2rem,28rem)] gap-0 rounded-none border-0 bg-white px-8 py-10 text-center shadow-xl sm:max-w-md sm:px-12 sm:py-12"
+        className={cn(
+          "max-h-[min(90dvh,36rem)] w-[calc(100%-1.5rem)] max-w-[28rem] gap-0 overflow-y-auto overscroll-contain",
+          "rounded-lg border-0 bg-white px-5 py-8 text-center shadow-xl",
+          "sm:w-full sm:max-w-md sm:rounded-none sm:px-12 sm:py-12"
+        )}
       >
-        <DialogHeader className="space-y-0 text-center sm:text-center">
-          <DialogTitle className="text-balance text-[1.35rem] font-medium italic leading-snug tracking-tight text-[#0077BE] sm:text-[1.5rem]">
+        <DialogHeader className="space-y-0 pr-6 text-center sm:text-center">
+          <DialogTitle className="text-balance text-[1.2rem] font-medium italic leading-snug tracking-tight text-[#0077BE] sm:text-[1.5rem]">
             Carpet &amp; Air Duct Cleaning in Saskatoon, Saskatchewan
           </DialogTitle>
-          <DialogDescription className="mt-5 text-pretty text-base leading-relaxed text-neutral-700 sm:text-[1.05rem]">
+          <DialogDescription className="mt-4 text-pretty text-[0.95rem] leading-relaxed text-neutral-700 sm:mt-5 sm:text-[1.05rem]">
             Our all-natural cleaning formulas safely clean your carpet, upholstery, or air ducts and
             dry in about an hour.
           </DialogDescription>
@@ -69,17 +53,17 @@ export function BookingPromoPopup() {
 
         <a
           href={HOME_PHONE_TEL}
-          className="mt-6 inline-block text-xl font-bold tracking-wide text-[#0077BE] hover:underline sm:text-2xl"
+          className="mt-5 inline-block text-xl font-bold tracking-wide text-[#0077BE] hover:underline sm:mt-6 sm:text-2xl"
         >
           {HOME_PHONE_DISPLAY}
         </a>
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center sm:gap-4">
+        <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:justify-center sm:gap-4">
           <a
             href={HOME_PHONE_TEL}
             className={cn(
               buttonVariants({ size: "lg" }),
-              "min-h-11 flex-1 rounded-md bg-[#0077BE] px-8 text-base font-semibold text-white hover:bg-[#0066a3] sm:flex-none"
+              "min-h-12 w-full rounded-md bg-[#0077BE] px-6 text-base font-semibold text-white hover:bg-[#0066a3] sm:w-auto sm:flex-none sm:px-8"
             )}
           >
             Call Us
@@ -88,12 +72,12 @@ export function BookingPromoPopup() {
             href={HOUSECALL_PRO_BOOKING_URL}
             onClick={(e) => {
               e.preventDefault();
-              handleOpenChange(false);
+              setOpen(false);
               openHousecallBooking();
             }}
             className={cn(
               buttonVariants({ size: "lg" }),
-              "min-h-11 flex-1 rounded-md bg-[#0077BE] px-8 text-base font-semibold text-white hover:bg-[#0066a3] sm:flex-none"
+              "min-h-12 w-full rounded-md bg-[#0077BE] px-6 text-base font-semibold text-white hover:bg-[#0066a3] sm:w-auto sm:flex-none sm:px-8"
             )}
           >
             Book Online
