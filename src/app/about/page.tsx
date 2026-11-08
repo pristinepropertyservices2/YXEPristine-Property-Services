@@ -209,7 +209,9 @@ export default function AboutPage() {
 
         <div className="flex flex-wrap justify-center gap-3">
           <Button asChild className="bg-purple-700 hover:bg-purple-800">
-            <Link href="/book">Book a Service</Link>
+            <a href="https://book.housecallpro.com/book/YXE-Pristine-Property-Services/b339cc8769c04de08ce0b8be43a1fdc2?v2=true">
+              Book a Service
+            </a>
           </Button>
           <Button variant="outline" asChild>
             <Link href="/contact">Contact Us</Link>

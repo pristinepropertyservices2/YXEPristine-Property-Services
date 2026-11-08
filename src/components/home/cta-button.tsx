@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, type ReactNode } from "react";
+import { memo, type MouseEventHandler, type ReactNode } from "react";
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -29,7 +29,7 @@ export type CTAButtonProps = {
   variant?: CTAButtonVariant;
   className?: string;
   type?: "button" | "submit";
-  onClick?: () => void;
+  onClick?: MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>;
   prefetch?: boolean;
 };
 
@@ -51,15 +51,15 @@ export const CTAButton = memo(function CTAButton({
   );
 
   if (href) {
-    if (href.startsWith("tel:") || href.startsWith("mailto:")) {
+    if (href.startsWith("tel:") || href.startsWith("mailto:") || href.startsWith("http")) {
       return (
-        <a href={href} className={base}>
+        <a href={href} className={base} onClick={onClick}>
           {children}
         </a>
       );
     }
     return (
-      <Link href={href} prefetch={prefetch} className={base}>
+      <Link href={href} prefetch={prefetch} className={base} onClick={onClick}>
         {children}
       </Link>
     );

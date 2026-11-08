@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { getServerSession } from "next-auth/next";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
+import { BookingPromoPopup } from "@/components/booking-promo-popup";
+import { HousecallProScript } from "@/components/housecall-pro-script";
 import { SiteNavbar } from "@/components/site-navbar";
 import { ScrollToTopButton } from "@/components/scroll-to-top-button";
 import { Toaster } from "@/components/ui/toaster";
@@ -77,6 +79,8 @@ export default async function RootLayout({
         <AuthProvider session={session}>
           <SiteNavbar />
           {children}
+          <BookingPromoPopup />
+          <HousecallProScript />
           <ScrollToTopButton />
         </AuthProvider>
         <Toaster />

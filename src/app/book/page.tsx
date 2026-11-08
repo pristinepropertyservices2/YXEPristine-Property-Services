@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { BookingWizard } from "./booking-wizard";
+import { redirect } from "next/navigation";
+import { HOUSECALL_PRO_BOOKING_URL } from "@/lib/housecall-pro";
 import { SITE_URL } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
@@ -10,10 +11,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+/** Old /book route now sends customers to Housecall Pro online booking. */
 export default function BookPage() {
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50/50 to-background py-10">
-      <BookingWizard />
-    </div>
-  );
+  redirect(HOUSECALL_PRO_BOOKING_URL);
 }

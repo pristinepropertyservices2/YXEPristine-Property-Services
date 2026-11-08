@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardFooter, CardTitle } from "@/components/ui/card";
+import { HOUSECALL_PRO_BOOKING_URL, openHousecallBooking } from "@/lib/housecall-pro";
 import { cn } from "@/lib/utils";
 
 export type ServiceListingCardService = {
@@ -94,12 +95,18 @@ export function ServiceListingCard({ service, className }: ServiceListingCardPro
             className="group/btn relative w-full overflow-hidden rounded-2xl border-0 bg-gradient-to-r from-[#3a1f58] via-[#5E2C8A] to-[#4a2570] px-6 py-6 text-sm font-semibold tracking-wide text-white shadow-[0_12px_34px_-8px_rgba(62,31,107,0.55)] transition-[transform,box-shadow,filter] duration-300 hover:shadow-[0_18px_44px_-8px_rgba(62,31,107,0.58)] hover:brightness-[1.06] active:scale-[0.99] motion-reduce:transition-none"
             asChild
           >
-            <Link href="/book">
+            <a
+              href={HOUSECALL_PRO_BOOKING_URL}
+              onClick={(e) => {
+                e.preventDefault();
+                openHousecallBooking();
+              }}
+            >
               <span className="relative z-10 flex w-full items-center justify-center gap-2">
                 Book this service
                 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-0.5" />
               </span>
-            </Link>
+            </a>
           </Button>
           <Link
             href={`/services/${service.id}`}

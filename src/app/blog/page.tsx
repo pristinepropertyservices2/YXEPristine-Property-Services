@@ -34,7 +34,9 @@ export default function BlogPage() {
           </p>
           <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button asChild className="bg-amber-500 font-semibold text-neutral-950 hover:bg-amber-400">
-              <Link href="/book">Book Online</Link>
+              <a href="https://book.housecallpro.com/book/YXE-Pristine-Property-Services/b339cc8769c04de08ce0b8be43a1fdc2?v2=true">
+                Book Online
+              </a>
             </Button>
             <Button asChild variant="outline">
               <Link href="/services">View Services</Link>

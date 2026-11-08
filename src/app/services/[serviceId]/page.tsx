@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { JsonLd } from "@/components/seo/json-ld";
 import { serviceDetails, serviceDetailMap } from "@/lib/service-details";
+import { HOUSECALL_PRO_BOOKING_URL } from "@/lib/housecall-pro";
 import { SITE_URL } from "@/lib/site-seo";
 import { faqPageJsonLd, serviceOfferJsonLd } from "@/lib/structured-data";
 import { cn } from "@/lib/utils";
@@ -223,10 +224,13 @@ export default async function ServiceDetailPage({ params }: PageProps) {
                   className="group relative w-full overflow-hidden rounded-2xl border-0 bg-gradient-to-r from-[#3a1f58] via-[#5E2C8A] to-[#4a2570] px-8 py-6 text-sm font-semibold tracking-wide text-white shadow-[0_12px_34px_-8px_rgba(62,31,107,0.5)] transition-[transform,box-shadow,filter] duration-300 hover:shadow-[0_18px_44px_-8px_rgba(62,31,107,0.55)] hover:brightness-[1.06] active:scale-[0.99] sm:w-auto"
                   asChild
                 >
-                  <Link href="/book" className="inline-flex items-center justify-center gap-2">
+                  <a
+                    href={HOUSECALL_PRO_BOOKING_URL}
+                    className="inline-flex items-center justify-center gap-2"
+                  >
                     Book this service
                     <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-                  </Link>
+                  </a>
                 </Button>
                 <Button
                   variant="outline"
@@ -398,10 +402,10 @@ export default async function ServiceDetailPage({ params }: PageProps) {
                 className="rounded-2xl border-2 border-white/25 bg-white/10 px-8 py-6 text-base font-semibold text-white backdrop-blur-sm hover:bg-white/20"
                 asChild
               >
-                <Link href="/book" className="inline-flex items-center gap-2">
+                <a href={HOUSECALL_PRO_BOOKING_URL} className="inline-flex items-center gap-2">
                   Schedule now
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </a>
               </Button>
             </div>
           </section>

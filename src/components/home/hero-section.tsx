@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { CTAButton } from "@/components/home/cta-button";
 import { ArrowRight } from "lucide-react";
 import { Star } from "lucide-react";
+import { HOUSECALL_PRO_BOOKING_URL, openHousecallBooking } from "@/lib/housecall-pro";
 
 const HERO_BACKGROUND_PATH =
   "/" + encodeURIComponent("NEW WEBSITE HOME PAGE IMAGE e.png");
@@ -56,7 +57,15 @@ export function HeroSection() {
               Get instant quote
               <ArrowRight className="h-5 w-5" aria-hidden />
             </CTAButton>
-            <CTAButton href="/book" prefetch={false} variant="ghostLight">
+            <CTAButton
+              href={HOUSECALL_PRO_BOOKING_URL}
+              prefetch={false}
+              variant="ghostLight"
+              onClick={(e) => {
+                e.preventDefault();
+                openHousecallBooking();
+              }}
+            >
               Book cleaning now
             </CTAButton>
           </div>
@@ -66,7 +75,7 @@ export function HeroSection() {
               {[1, 2, 3, 4, 5].map((i) => (
                 <Star key={i} className="h-[1.125rem] w-[1.125rem] fill-amber-400 text-amber-400 sm:h-5 sm:w-5" />
               ))}
-              <span className="ml-2 text-base font-medium text-white/90">4.9 / 5 · Local reviews</span>
+              <span className="ml-2 text-base font-medium text-white/90">5.0 / 5 · 9 Google reviews</span>
             </div>
           </div>
         </div>

@@ -7,6 +7,7 @@ import { ChevronDown, Loader2, Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { buttonVariants } from "@/components/ui/button";
+import { HOUSECALL_PRO_BOOKING_URL, openHousecallBooking } from "@/lib/housecall-pro";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -130,16 +131,19 @@ export function SiteNavbar() {
             </div>
 
             <div className="hidden items-center gap-2 lg:flex lg:gap-3">
-              <Link
-                href="/book"
-                prefetch={false}
+              <a
+                href={HOUSECALL_PRO_BOOKING_URL}
+                onClick={(e) => {
+                  e.preventDefault();
+                  openHousecallBooking();
+                }}
                 className={cn(
                   buttonVariants({ size: "sm" }),
                   "bg-amber-500 font-semibold text-neutral-950 hover:bg-amber-400"
                 )}
               >
                 Book Online
-              </Link>
+              </a>
               {status === "loading" ? (
                 <span
                   className={cn(
@@ -303,17 +307,20 @@ export function SiteNavbar() {
                   heroNav ? "border-white/20" : "border-gray-200"
                 )}
               >
-                <Link
-                  href="/book"
-                  prefetch={false}
-                  onClick={() => setMobileOpen(false)}
+                <a
+                  href={HOUSECALL_PRO_BOOKING_URL}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setMobileOpen(false);
+                    openHousecallBooking();
+                  }}
                   className={cn(
                     buttonVariants(),
                     "w-full justify-center bg-amber-500 font-semibold text-neutral-950 hover:bg-amber-400"
                   )}
                 >
                   Book Online
-                </Link>
+                </a>
                 {status === "loading" ? (
                   <span
                     className={cn(

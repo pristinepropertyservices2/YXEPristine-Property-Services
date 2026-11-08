@@ -1,7 +1,6 @@
 'use client';
 
 import { FormEvent, useState } from "react";
-import Link from "next/link";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -97,7 +96,9 @@ export default function ContactPage() {
 
           <div className="mt-8">
             <Button asChild variant="outline">
-              <Link href="/book">Book a service</Link>
+              <a href="https://book.housecallpro.com/book/YXE-Pristine-Property-Services/b339cc8769c04de08ce0b8be43a1fdc2?v2=true">
+                Book a service
+              </a>
             </Button>
           </div>
         </div>

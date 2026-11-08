@@ -1,9 +1,9 @@
 "use client";
 
 import { memo } from "react";
-import Link from "next/link";
 import { Phone } from "lucide-react";
 import { HOME_PHONE_TEL } from "@/lib/home-data";
+import { HOUSECALL_PRO_BOOKING_URL, openHousecallBooking } from "@/lib/housecall-pro";
 import { cn } from "@/lib/utils";
 
 type StickyMobileCtaProps = {
@@ -32,16 +32,19 @@ export const StickyMobileCta = memo(function StickyMobileCta({ className }: Stic
           <Phone className="h-5 w-5 shrink-0" aria-hidden />
           Call now
         </a>
-        <Link
-          href="/book"
-          prefetch={false}
+        <a
+          href={HOUSECALL_PRO_BOOKING_URL}
+          onClick={(e) => {
+            e.preventDefault();
+            openHousecallBooking();
+          }}
           className={cn(
             "flex min-h-12 flex-1 items-center justify-center rounded-xl text-base font-semibold",
             "bg-amber-500 text-neutral-950 shadow-md active:scale-[0.99] active:bg-amber-400"
           )}
         >
           Book now
-        </Link>
+        </a>
       </div>
     </div>
   );

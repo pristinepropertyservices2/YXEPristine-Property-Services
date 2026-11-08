@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Check, ShieldCheck, Sparkles, Clock3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -77,7 +76,9 @@ export default function PricingPage() {
                   className={plan.popular ? "w-full bg-amber-600 hover:bg-amber-700 text-white" : "w-full"}
                   variant={plan.popular ? "default" : "outline"}
                 >
-                  <Link href="/book">{plan.id === "one-time" ? "Get Started" : "Subscribe"}</Link>
+                  <a href="https://book.housecallpro.com/book/YXE-Pristine-Property-Services/b339cc8769c04de08ce0b8be43a1fdc2?v2=true">
+                    {plan.id === "one-time" ? "Get Started" : "Subscribe"}
+                  </a>
                 </Button>
               </CardFooter>
             </Card>

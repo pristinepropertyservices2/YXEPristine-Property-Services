@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { HomePageClient } from "@/components/home/home-page-client";
 import { JsonLd } from "@/components/seo/json-ld";
 import { homeTestimonials } from "@/lib/home-data";
+import { fetchGoogleReviews } from "@/lib/google-reviews";
 import { SITE_URL } from "@/lib/site-seo";
 import { homePageGraphJsonLd } from "@/lib/structured-data";
 
@@ -31,11 +32,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Page() {
+export default async function Page() {
+  const google = await fetchGoogleReviews(homeTestimonials);
+
   return (
     <>
-      <JsonLd data={homePageGraphJsonLd(homeTestimonials)} />
-      <HomePageClient />
+      <JsonLd data={homePageGraphJsonLd(google.reviews)} />
+      <HomePageClient
+        testimonials={google.reviews}
+        reviewRating={google.rating}
+        reviewCount={google.userRatingCount}
+        mapsUrl={google.mapsUrl}
+        reviewsSource={google.source}
+      />
     </>
   );
 }

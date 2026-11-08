@@ -24,6 +24,11 @@ export const BUSINESS = {
   ],
   /** Book online 24/7 — matches public messaging */
   openingHours: "Mo-Su 00:00-23:59",
+  /** Google Business Profile — Place ID from Maps listing */
+  googlePlaceId: "ChIJpZbW6vvA82MRycYStkGnr5I",
+  googleMapsUrl: "https://www.google.com/maps?cid=10569850751131240137",
+  googleReviewsUrl:
+    "https://search.google.com/local/reviews?placeid=ChIJpZbW6vvA82MRycYStkGnr5I",
   sameAs: [] as string[],
 } as const;
 

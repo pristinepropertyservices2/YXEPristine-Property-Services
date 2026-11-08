@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
 import { useState, useCallback, type FormEvent } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
@@ -9,13 +8,14 @@ import { toast } from "@/hooks/use-toast";
 import {
   homeServices,
   homePlans,
-  homeTestimonials,
   homeBookingTimeSlots,
   HOME_PHONE_TEL,
   type HomeService,
   type HomePlan,
+  type HomeTestimonial,
 } from "@/lib/home-data";
 import { SECTION_INTRO_GAP, SECTION_H2, SECTION_LEAD, SECTION_Y } from "@/lib/home-layout";
+import { HOUSECALL_PRO_BOOKING_URL, openHousecallBooking } from "@/lib/housecall-pro";
 import { cn } from "@/lib/utils";
 import { HeroSection } from "@/components/home/hero-section";
 import { WhyChooseUs } from "@/components/home/why-choose-us";
@@ -36,8 +36,21 @@ const PaymentModal = dynamic(
   { ssr: false }
 );
 
-export function HomePageClient() {
-  const router = useRouter();
+type HomePageClientProps = {
+  testimonials?: HomeTestimonial[];
+  reviewRating?: number | null;
+  reviewCount?: number | null;
+  mapsUrl?: string | null;
+  reviewsSource?: "google" | "fallback";
+};
+
+export function HomePageClient({
+  testimonials = [],
+  reviewRating = null,
+  reviewCount = null,
+  mapsUrl = null,
+  reviewsSource = "fallback",
+}: HomePageClientProps) {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -200,17 +213,14 @@ export function HomePageClient() {
     }
   };
 
-  const handleSelectPlan = useCallback(
-    (plan: HomePlan) => {
-      if (plan.type === "ONE_TIME") {
-        router.push("/book");
-        return;
-      }
-      setSelectedPlan(plan);
-      setIsPaymentModalOpen(true);
-    },
-    [router]
-  );
+  const handleSelectPlan = useCallback((plan: HomePlan) => {
+    if (plan.type === "ONE_TIME") {
+      openHousecallBooking();
+      return;
+    }
+    setSelectedPlan(plan);
+    setIsPaymentModalOpen(true);
+  }, []);
 
   const conversionCtas = (
     <>
@@ -218,7 +228,15 @@ export function HomePageClient() {
         Get instant quote
         <ArrowRight className="h-5 w-5 shrink-0" aria-hidden />
       </CTAButton>
-      <CTAButton href="/book" prefetch={false} variant="neutral">
+      <CTAButton
+        href={HOUSECALL_PRO_BOOKING_URL}
+        prefetch={false}
+        variant="neutral"
+        onClick={(e) => {
+          e.preventDefault();
+          openHousecallBooking();
+        }}
+      >
         Book cleaning now
       </CTAButton>
     </>
@@ -271,7 +289,13 @@ export function HomePageClient() {
         </section>
 
         <AboutSection />
-        <TestimonialsSection testimonials={homeTestimonials} />
+        <TestimonialsSection
+          testimonials={testimonials}
+          rating={reviewRating}
+          userRatingCount={reviewCount}
+          mapsUrl={mapsUrl}
+          source={reviewsSource}
+        />
         <PricingPlansSection plans={homePlans} onSelectPlan={handleSelectPlan} />
 
         <ContactFormSection
