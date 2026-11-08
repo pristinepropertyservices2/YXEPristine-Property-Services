@@ -43,11 +43,11 @@ export function BookingPromoPopup() {
       >
         <DialogHeader className="space-y-0 pr-6 text-center sm:text-center">
           <DialogTitle className="text-balance text-[1.2rem] font-medium italic leading-snug tracking-tight text-[#0077BE] sm:text-[1.5rem]">
-            Carpet &amp; Air Duct Cleaning in Saskatoon, Saskatchewan
+            Professional Carpet &amp; Air Duct Cleaning | Saskatoon, SK
           </DialogTitle>
           <DialogDescription className="mt-4 text-pretty text-[0.95rem] leading-relaxed text-neutral-700 sm:mt-5 sm:text-[1.05rem]">
-            Our all-natural cleaning formulas safely clean your carpet, upholstery, or air ducts and
-            dry in about an hour.
+            We use eco-friendly, non-toxic cleaning formulas to thoroughly restore your carpets,
+            upholstery, and air ducts delivering a deep clean with a faster time
           </DialogDescription>
         </DialogHeader>
 
